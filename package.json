@@ -1,0 +1,26 @@
+{
+  "name": "vegocore",
+  "version": "1.0.0",
+  "description": "Basic Function:",
+  "main": "index.js",
+  "dependencies": {
+    "gl-matrix": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0",
+    "eslint-config-vusion": "^3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vego-canvas/vego-core.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vego-canvas/vego-core/issues"
+  },
+  "homepage": "https://github.com/vego-canvas/vego-core#readme"
+}

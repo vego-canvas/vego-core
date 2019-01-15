@@ -14,7 +14,7 @@ export default class VegoCanvas extends Layer {
         const graphic = new Graphics();
         Object.defineProperty(this, '$graphic', {
             value: graphic,
-        })
+        });
     }
 
     render() {
@@ -62,7 +62,7 @@ export default class VegoCanvas extends Layer {
         return target;
     }
 
-    moveHandler(x, y){
+    moveHandler(x, y) {
         const target = this.commonHandler('mousemove', x, y);
         if (this.oldTarget !== target) {
             this.dispatchMouseEvent(this.oldTarget, {
