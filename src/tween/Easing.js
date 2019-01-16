@@ -1,14 +1,16 @@
-// --------------------------------------------------
-// easing.js v0.5.4
-// Generic set of easing functions with AMD support
-// https://github.com/danro/easing-js
-// This code may be freely distributed under the MIT license
-// http://danro.mit-license.org/
-// --------------------------------------------------
-// All functions adapted from Thomas Fuchs & Jeremy Kahn
-// Easing Equations (c) 2003 Robert Penner, BSD license
-// https://raw.github.com/danro/easing-js/master/LICENSE
-// --------------------------------------------------
+/*
+ * --------------------------------------------------
+ * easing.js v0.5.4
+ * Generic set of easing functions with AMD support
+ * https://github.com/danro/easing-js
+ * This code may be freely distributed under the MIT license
+ * http://danro.mit-license.org/
+ * --------------------------------------------------
+ * All functions adapted from Thomas Fuchs & Jeremy Kahn
+ * Easing Equations (c) 2003 Robert Penner, BSD license
+ * https://raw.github.com/danro/easing-js/master/LICENSE
+ * --------------------------------------------------
+ */
 export default {
     linear(pos) {
         return pos;

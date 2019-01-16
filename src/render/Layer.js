@@ -21,6 +21,10 @@ export default class Layer extends EventDispatcher {
             this.$children = [];
     }
 
+    addChild(comp) {
+        this.$children.push(comp);
+    }
+
     _applyTransform(ctx) {
         const mtx = this.$matrix;
         ctx.save();
@@ -76,7 +80,6 @@ export default class Layer extends EventDispatcher {
 
         this.$graphic && this.$graphic.draw(ctx);
         // 保证绘制时子节点增多不会造成问题
-        // console.log(this.$children)
         if (this.$children.length > 0) {
             const children = this.$children.slice();
             children.forEach((comp) => {
@@ -101,7 +104,7 @@ export default class Layer extends EventDispatcher {
         if (condition(x, y, currentLayerMtx, this.$graphic)) {
             targets.push(this);
         }
-        children.forEach(( comp ) => {
+        children.forEach((comp) => {
             comp._getTargets({
                 x, y, targets, condition,
             }, currentLayer + 1, currentLayerMtx);

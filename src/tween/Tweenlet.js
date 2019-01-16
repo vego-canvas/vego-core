@@ -8,6 +8,7 @@ export default class Tweenlet {
             scope[key] = this.value;
         };
     }
+
     reset({
         start, end,
     }) {
@@ -21,10 +22,12 @@ export default class Tweenlet {
         this.value = start;
         return this;
     }
+
     run(step) {
         this.value = this.start + step * this.span;
         this.setValue();
     }
+
     theEnd() {
         this.value = this.end;
         this.setValue();

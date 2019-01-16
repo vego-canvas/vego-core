@@ -1,13 +1,15 @@
-import Easing from './Easing'
-import { isFunction } from '../util'
+import Easing from './Easing';
+import { isFunction } from '../util';
 import Tweenlet from './Tweenlet';
 const nextFrame = window.requestAnimationFrame;
-// Tween 要解决的问题：
-// 1、值变化 2、中断动画时
+/*
+ * Tween 要解决的问题：
+ * 1、值变化 2、中断动画时
+ */
 class Tween {
     constructor(duration, easing) {
         let easeFunc = easing;
-        if(typeof easeFunc === 'string'){
+        if (typeof easeFunc === 'string') {
             easeFunc = Easing[easeFunc];
         }
         // console.log(easeFunc, isFunction(easeFunc))
@@ -23,6 +25,7 @@ class Tween {
         this._pause = false;
         this._next = null;
     }
+
     addTweenlet(tweenlet, prefix) {
         if (this.tweenlets.has(prefix)) {
             const curr = this.tweenlets.get(prefix).value;
@@ -33,6 +36,7 @@ class Tween {
             this.tweenlets.set(prefix, tweenlet);
         }
     }
+
     _animate(t, res) {
         if (!this._begin) {
             this._begin = t;
@@ -77,7 +81,8 @@ function walkInProps(props, tw, prefix) {
             if (endIsPrimary && currIsPrimary && typeof end === typeof curr) {
                 tw.addTweenlet(
                     new Tweenlet(curr, end, this, k),
-                    `${prefix || ''}.${k}`);
+                    `${prefix || ''}.${k}`
+                );
             }
         }
     }
