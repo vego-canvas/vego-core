@@ -11,7 +11,6 @@ export default class ColorTweenlet extends Tweenlet {
         const s = colorString.get(start).value;
         const span = this.span;
         const ppp = s.map((o, i) => ~~(o + step * span[i]));
-        // console.log(colorString.to.hex(ppp))
         return colorString.to.hex(ppp);
     }
 }

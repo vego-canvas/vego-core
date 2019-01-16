@@ -1,7 +1,12 @@
 import Easing from './Easing';
 import { isFunction } from '../util';
 import Tweenlet from './Tweenlet';
+import ColorTweenlet from './ColorTweenlet';
 const nextFrame = window.requestAnimationFrame;
+const lets = [
+    Tweenlet,
+    ColorTweenlet,
+];
 /*
  * Tween 要解决的问题：
  * 1、值变化 2、中断动画时
@@ -65,6 +70,14 @@ class Tween {
 function isPrimary(obj) {
     return ['number', 'boolean', 'string', 'undefined'].indexOf(typeof obj) !== -1;
 }
+function tweenletFactory(curr, end, context, k) {
+    const p = `${curr}`;
+    const T = lets.find((l) => l.pattern(p));
+    if (!T) {
+        throw 'no matching tweenlet!';
+    }
+    return new T(curr, end, context, k);
+}
 function walkInProps(props, tw, prefix) {
     if (!isPrimary(props)) {
         // throw 'need a object root from top scope';
@@ -79,8 +92,9 @@ function walkInProps(props, tw, prefix) {
             if (!endIsPrimary && !currIsPrimary)
                 walkInProps.call(curr, end, tw, `${k}.`);
             if (endIsPrimary && currIsPrimary && typeof end === typeof curr) {
+                const tweenlet = tweenletFactory(curr, end, this, k);
                 tw.addTweenlet(
-                    new Tweenlet(curr, end, this, k),
+                    tweenlet,
                     `${prefix || ''}.${k}`
                 );
             }
