@@ -19,7 +19,7 @@ export default class ColorTweenlet extends Tweenlet {
             s.g + step * span[1],
             s.b + step * span[2]
         );
-        return ppp.toHEX(false);
+        return ppp.toHex(false);
     }
 }
 ColorTweenlet.pattern = (p) => new Color(p).valid;
