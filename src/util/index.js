@@ -13,3 +13,11 @@ export function findmax(array, key) {
     }
     return target;
 }
+
+export function isFunction(t) {
+    return t && Object.prototype.toString.call(t) === '[object Function]';
+}
+
+export function isPureObject(obj) {
+    return (obj.constructor && obj.constructor === Object);
+}
