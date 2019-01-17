@@ -1,10 +1,10 @@
 {
   "name": "vegocore",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Basic Function:",
   "main": "index.js",
   "dependencies": {
-    "color-string": "^1.5.3",
+    "css-fruit": "^0.1.5",
     "gl-matrix": "^3.0.0"
   },
   "devDependencies": {

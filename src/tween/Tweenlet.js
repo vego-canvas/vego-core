@@ -2,7 +2,7 @@ export default class Tweenlet {
     constructor(start, end, scope, key) {
         this.start = start;
         this.end = end;
-        this.span = end - start;
+        this.span = this.calcDistance(end, start);
         this.value = start;
         this.setValue = () => {
             scope[key] = this.value;
@@ -18,13 +18,13 @@ export default class Tweenlet {
         if (end !== undefined) {
             this.end = end;
         }
-        this.span = end - start;
+        this.span = this.calcDistance(end, start);
         this.value = start;
         return this;
     }
 
     run(step) {
-        this.value = this.start + step * this.span;
+        this.value = this.calcNextStep(this.start, step);
         this.setValue();
     }
 
@@ -32,4 +32,14 @@ export default class Tweenlet {
         this.value = this.end;
         this.setValue();
     }
+
+    calcDistance(end, start) {
+        return end - start;
+    }
+
+    calcNextStep(start, step) {
+        return start + step * this.span;
+    }
 }
+
+Tweenlet.pattern = (p) => /^-?\d*(?:\.\d+)?$/.test(p);

@@ -72,11 +72,11 @@ function isPrimary(obj) {
 }
 function tweenletFactory(curr, end, context, k) {
     const p = `${curr}`;
-    const T = lets.find((l) => l.pattern(p));
-    if (!T) {
+    const t = lets.find((l) => l.pattern(p));
+    if (!t) {
         throw 'no matching tweenlet!';
     }
-    return new T(curr, end, context, k);
+    return new t(curr, end, context, k);
 }
 function walkInProps(props, tw, prefix) {
     if (!isPrimary(props)) {
