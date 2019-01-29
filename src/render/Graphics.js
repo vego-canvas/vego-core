@@ -249,6 +249,7 @@ class Graphics {
 
 		if (commit) {
 			active.length = 0;
+
 			this._commitIndex = instr.length;
 		}
     }

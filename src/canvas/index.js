@@ -2,19 +2,34 @@ import Layer from '../render/Layer';
 import hitTest from '../util/hitTest';
 // import EventResolver from '../event/EventResolver';
 import { MouseEvent } from '../event/Event';
+import EventResolver from '../event/EventResolver';
 import { findmax } from '../util';
 import Graphics from '../render/graphics';
 
 export default class VegoCanvas extends Layer {
-    constructor(canvas) {
+    constructor(canvas, options = {
+        enableMouseOver: 50, // TODO: lower cpu usage, 0 to disable mouseover event
+        enableTouch: false, // TODO: enable touch events
+    }) {
         super();
         this.canvas = matchDevicePixelRatio(canvas);
         this.ctx = this.canvas.getContext('2d');
         this.ratio = getDevicePixelRatio();
+        // cachedRect is for partial rendering
+        this.repaintRect = undefined;
+        // inject events
+        this.eventResolver = new EventResolver(this, {
+            enableMouseOver: options.enableMouseOver,
+        });
+
         const graphic = new Graphics();
         Object.defineProperty(this, '$graphic', {
             value: graphic,
         });
+    }
+
+    setRepaintRect(target) {
+        // TODO 获取目标元素的位置 并赋值给 repaintRect , 类似 getBoundingRect(target)
     }
 
     render() {
@@ -23,9 +38,24 @@ export default class VegoCanvas extends Layer {
             width, height,
         } = this.canvas;
         const ratio = this.ratio;
-        ctx.clearRect(0, 0, width + 1, height + 1);
+        // auto clear is default
+        if (this.repaintRect) {
+            const { x, y, width, height } = this.repaintRect;
+            ctx.clearRect(x, y, width, height);
+        } else {
+            ctx.clearRect(0, 0, width + 1, height + 1);
+        }
+
         ctx.save();
         ctx.scale(ratio, ratio);
+
+        if (this.repaintRect) {
+            const { x, y, width, height } = this.repaintRect;
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+            ctx.clip();
+        }
+
         this._render(ctx);
         ctx.restore();
     }
@@ -47,38 +77,8 @@ export default class VegoCanvas extends Layer {
         target._dispatch(event);
     }
 
-    commonHandler(type, x, y) {
-        const targets = this.getTargetsUnderPoint(x, y);
-        const target = findmax(targets, 'uid');
-        if (target) {
-            this.dispatchMouseEvent(target, {
-                x,
-                y,
-                type,
-                target,
-                bubble: false,
-            });
-        }
-        return target;
-    }
-
-    moveHandler(x, y) {
-        const target = this.commonHandler('mousemove', x, y);
-        if (this.oldTarget !== target) {
-            this.dispatchMouseEvent(this.oldTarget, {
-                x,
-                y,
-                type: 'mouseleave',
-                target: this.oldTarget,
-            });
-            this.dispatchMouseEvent(target, {
-                x,
-                y,
-                type: 'mouseenter',
-                target,
-            });
-        }
-        this.oldTarget = target;
+    getTarget(x, y) {
+        return findmax(this.getTargetsUnderPoint(x, y), 'uid');
     }
 }
 

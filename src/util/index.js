@@ -2,7 +2,8 @@ export function findmax(array, key) {
     let max = 0;
     let target = null;
     const a = array.length;
-
+    if (a === 0)
+        return target;
     let counter;
 
     for (counter = 0; counter < a; counter++) {
@@ -12,6 +13,16 @@ export function findmax(array, key) {
         }
     }
     return target;
+}
+export function throttle(ctx, fn, delay) {
+    let lastExec = 0;
+    const wrapper = function (...param) {
+        if (lastExec + delay < Date.now()) {
+            lastExec = Date.now();
+            fn.apply(ctx, param);
+        }
+    };
+    return wrapper;
 }
 
 export function isFunction(t) {

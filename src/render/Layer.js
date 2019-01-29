@@ -6,6 +6,7 @@ export default class Layer extends EventDispatcher {
     constructor() {
         super();
         this.$matrix = mat2d.create();
+
         this.$geometry = {
             x: 0,
             y: 0,
@@ -19,6 +20,9 @@ export default class Layer extends EventDispatcher {
         };
         if (!this.$children)
             this.$children = [];
+
+        // isDirty 表示了组件是否需要被重绘
+        this.isDirty = false;
     }
 
     addChild(comp) {
