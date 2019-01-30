@@ -11,18 +11,19 @@ class EventResolver {
         this.lastTarget = null;
         // mouse in out indicator!
         this.oldTarget = null;
+        this.canvasboundingbox = this.vegocanvas.canvas.getBoundingClientRect();
 
         this.init();
     }
 
     init() {
         const canvas = this.vegocanvas.canvas;
-        canvas.addEventListener('click', this.domEventExtract(this.clickAtPointHandler).bind(this));
-        canvas.addEventListener('mousedown', this.domEventExtract(this.startHander).bind(this));
+        canvas.addEventListener('click', this.eventExtract(this.clickAtPointHandler).bind(this));
+        canvas.addEventListener('mousedown', this.eventExtract(this.startHander).bind(this));
         if (this.enableMouseOver > 0) {
-            canvas.addEventListener('mousemove', throttle(this, this.domEventExtract(this.moveHandler), this.enableMouseOver));
+            canvas.addEventListener('mousemove', throttle(this, this.eventExtract(this.moveHandler), this.enableMouseOver));
         }
-        canvas.addEventListener('mouseup', this.domEventExtract(this.endHandler).bind(this));
+        canvas.addEventListener('mouseup', this.eventExtract(this.endHandler).bind(this));
     }
 
     getPointFromEvent(e) {
@@ -33,7 +34,7 @@ class EventResolver {
         };
     }
 
-    domEventExtract(fn) {
+    eventExtract(fn) {
         return (e) => {
             const {
                 x, y,
@@ -77,6 +78,7 @@ class EventResolver {
                 target: this.lastTarget,
             });
         } else {
+            console.log('move');
             const target = this.vegocanvas.getTarget(x, y);
             // no press
             if (this.oldTarget !== target) {

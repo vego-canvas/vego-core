@@ -3,6 +3,7 @@ import hitTest from '../util/hitTest';
 // import EventResolver from '../event/EventResolver';
 import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
+import TouchEventResolver from '../event/TouchEventResolver';
 import { findmax } from '../util';
 import Graphics from '../render/graphics';
 
@@ -18,9 +19,17 @@ export default class VegoCanvas extends Layer {
         // cachedRect is for partial rendering
         this.repaintRect = undefined;
         // inject events
-        this.eventResolver = new EventResolver(this, {
-            enableMouseOver: options.enableMouseOver,
-        });
+
+        if (options.enableTouch) {
+            console.log('eventExtract touch');
+            this.touchEventResolver = new TouchEventResolver(this, {
+                enableMouseOver: options.enableMouseOver,
+            });
+        } else {
+            this.eventResolver = new EventResolver(this, {
+                enableMouseOver: options.enableMouseOver,
+            });
+        }
 
         const graphic = new Graphics();
         Object.defineProperty(this, '$graphic', {
