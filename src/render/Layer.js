@@ -21,7 +21,7 @@ export default class Layer extends EventDispatcher {
         if (!this.$children)
             this.$children = [];
 
-        // isDirty 表示了组件是否需要被重绘
+        // isDirty 表示了组件是否需要被重绘 这里应该放在呢？
         this.isDirty = false;
     }
 
@@ -94,6 +94,12 @@ export default class Layer extends EventDispatcher {
                 // 子组件绘制按写入顺序
                 comp._render(ctx);
             });
+        }
+
+        if (this.$graphic) {
+            this.$graphic
+                .setContext(ctx)
+                .afterDraw();
         }
 
         this._applyTransformBack(ctx);

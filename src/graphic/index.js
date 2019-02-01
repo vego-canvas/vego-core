@@ -116,10 +116,11 @@ function mkMethodFn(methods) {
 }
 
 class Graphic {
-    constructor(render) {
+    constructor(render, afterRender) {
         this.cached = null;
         this.noStyle = false;
         this.render = render;
+        this.afterRender = afterRender;
     }
 
     setContext(ctx) {
@@ -139,6 +140,13 @@ class Graphic {
 
     draw() {
         this.render(this);
+        return this;
+    }
+
+    afterDraw() {
+        if (this.afterRender) {
+            this.afterRender(this);
+        }
         return this;
     }
 }
