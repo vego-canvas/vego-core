@@ -1,25 +1,41 @@
 import { DisplayObject, VegoCanvas } from '..';
 
 let uid = 0;
+/*
+ * const circle = new DisplayObject(uid++, (g) => {
+ *     g.clear()
+ *         .beginFill('red')
+ *         .drawCircle(0, 0, 50);
+ * });
+ */
 const circle = new DisplayObject(uid++, (g) => {
-    g.clear()
-        .beginFill('red')
-        .drawCircle(0, 0, 50);
+    g.beginPath()
+        .setFillStyle('red')
+        .arc(0, 0, 50, 0, Math.PI * 2)
+        .fill();
 });
 circle.$geometry.x = 50;
 circle.$geometry.y = 50;
 circle._appendTransform();
-circle._update();
+// circle._update();
 
+/*
+ * const circle2 = new DisplayObject(uid++, (g) => {
+ *     g.clear()
+ *         .beginFill('red')
+ *         .drawCircle(0, 0, 50);
+ * });
+ */
 const circle2 = new DisplayObject(uid++, (g) => {
-    g.clear()
-        .beginFill('red')
-        .drawCircle(0, 0, 50);
+    g.beginPath()
+        .setFillStyle('red')
+        .arc(0, 0, 50, 0, Math.PI * 2)
+        .fill();
 });
 circle2.$geometry.x = 30;
 circle2.$geometry.y = 30;
 circle2._appendTransform();
-circle2._update();
+// circle2._update();
 
 circle.addChild(circle2);
 

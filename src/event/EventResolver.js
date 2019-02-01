@@ -78,7 +78,6 @@ class EventResolver {
                 target: this.lastTarget,
             });
         } else {
-            console.log('move');
             const target = this.vegocanvas.getTarget(x, y);
             // no press
             if (this.oldTarget !== target) {

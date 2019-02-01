@@ -81,8 +81,12 @@ export default class Layer extends EventDispatcher {
          * console.log(`${this.name} graphics ${this.$graphic.instructions.length}`)
          */
         this._applyTransform(ctx);
+        if (this.$graphic) {
+            this.$graphic
+                .setContext(ctx)
+                .draw();
+        }
 
-        this.$graphic && this.$graphic.draw(ctx);
         // 保证绘制时子节点增多不会造成问题
         if (this.$children.length > 0) {
             const children = this.$children.slice();

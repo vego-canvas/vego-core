@@ -30,7 +30,7 @@ export default class Stroke {
         this.prev = null;
     }
 
-    begin(ctx) {
+    exec(ctx) {
         ctx.lineCap = this.lineCap;
         ctx.lineDashOffset = this.lineDashOffset;
         ctx.lineJoin = this.lineJoin;

@@ -1,4 +1,4 @@
 # Vego Core
 Basic Function:
 
-Layer, Event, Render,
+Layer, Event, Render, Graphic

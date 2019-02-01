@@ -1,11 +1,14 @@
 import Layer from '../render/Layer';
-import hitTest from '../util/hitTest';
+import hitTest, { hitTestSpace } from '../util/hitTest';
 // import EventResolver from '../event/EventResolver';
 import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
 import TouchEventResolver from '../event/TouchEventResolver';
 import { findmax } from '../util';
-import Graphics from '../render/graphics';
+/*
+ * import Graphics from '../render/graphics';
+ * import { setContext2d, sethitCtx } from '../graphic';
+ */
 
 export default class VegoCanvas extends Layer {
     constructor(canvas, options = {
@@ -19,9 +22,7 @@ export default class VegoCanvas extends Layer {
         // cachedRect is for partial rendering
         this.repaintRect = undefined;
         // inject events
-
         if (options.enableTouch) {
-            console.log('eventExtract touch');
             this.touchEventResolver = new TouchEventResolver(this, {
                 enableMouseOver: options.enableMouseOver,
             });
@@ -30,11 +31,18 @@ export default class VegoCanvas extends Layer {
                 enableMouseOver: options.enableMouseOver,
             });
         }
+        /*
+         * inject Graphic context
+         * setContext2d(this.ctx);
+         * sethitCtx(hitTestSpace.ctx);
+         */
 
-        const graphic = new Graphics();
-        Object.defineProperty(this, '$graphic', {
-            value: graphic,
-        });
+        /*
+         * const graphic = new Graphics();
+         * Object.defineProperty(this, '$graphic', {
+         *     value: graphic,
+         * });
+         */
     }
 
     setRepaintRect(target) {
@@ -74,7 +82,7 @@ export default class VegoCanvas extends Layer {
         const ratio = getDevicePixelRatio();
         this._getTargets({
             x, y, targets,
-            condition: (x, y, currentLayerMtx, graphic) => hitTest(x, y, currentLayerMtx, graphic, ratio),
+            condition: (x, y, currentLayerMtx, g) => hitTest(x, y, currentLayerMtx, g, ratio),
         });
         return targets;
     }
