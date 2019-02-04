@@ -19,7 +19,7 @@ class Tween {
         }
         // console.log(easeFunc, isFunction(easeFunc))
         if (!isFunction(easeFunc))
-            throw 'easing need to be a function';
+            throw new Error('easing need to be a function');
 
         this.tweenlets = new Map();
         this.duration = duration;
@@ -72,11 +72,11 @@ function isPrimary(obj) {
 }
 function tweenletFactory(curr, end, context, k) {
     const p = `${curr}`;
-    const t = lets.find((l) => l.pattern(p));
-    if (!t) {
-        throw 'no matching tweenlet!';
+    const T = lets.find((l) => l.pattern(p));
+    if (!T) {
+        throw new Error('no matching tweenlet!');
     }
-    return new t(curr, end, context, k);
+    return new T(curr, end, context, k);
 }
 function walkInProps(props, tw, prefix) {
     if (!isPrimary(props)) {

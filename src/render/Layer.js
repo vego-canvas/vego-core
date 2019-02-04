@@ -86,14 +86,21 @@ export default class Layer extends EventDispatcher {
                 .setContext(ctx)
                 .draw();
         }
-
+        let i = 0;
+        const length = this.$children.length;
         // 保证绘制时子节点增多不会造成问题
-        if (this.$children.length > 0) {
-            const children = this.$children.slice();
-            children.forEach((comp) => {
-                // 子组件绘制按写入顺序
-                comp._render(ctx);
-            });
+        if (length > 0) {
+            /*
+             * const children = this.$children.slice();
+             * this.$children.forEach((comp) => {
+             *     // 子组件绘制按写入顺序
+             *     comp._render(ctx);
+             * });
+             */
+            while (i < length) {
+                this.$children[i]._render(ctx);
+                i++;
+            }
         }
 
         if (this.$graphic) {

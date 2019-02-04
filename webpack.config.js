@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: {
-        bundle: __dirname + '/test/index.test.js',
+        bundle: __dirname + '/test/performance.test.js',
     },
     output: {
         path: __dirname + '/',
@@ -13,7 +13,7 @@ module.exports = {
     devServer: {
         contentBase: path.join(__dirname, './'),
         compress: true,
-        port: 8080,
+        port: 8086,
     },
     mode: 'development',
     plugins: [

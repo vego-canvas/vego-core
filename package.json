@@ -1,6 +1,6 @@
 {
   "name": "vegocore",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Basic Function:",
   "main": "index.js",
   "dependencies": {

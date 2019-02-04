@@ -22,6 +22,7 @@
  */
 
 // TODO: Graphic is a chainable API to construct instructions
+import { getNewCanvas } from '../canvas';
 const properties = [
     'canvas',
     'currentTransform',
@@ -97,6 +98,7 @@ function mkFn(properties) {
     properties.forEach((p) => {
         fn[mkFnName(p)] = function (val) {
             if (!this.noStyle && this._ctx[p] !== val) {
+                // console.log(`set ${p} = ${val}`);
                 this._ctx[p] = val;
             }
             return this;
@@ -109,6 +111,7 @@ function mkMethodFn(methods) {
     methods.forEach((m) => {
         fn[m] = function (...param) {
             this._ctx[m](...param);
+            // console.log(`${m} ( ${param} )`);
             return this;
         };
     });
@@ -121,6 +124,35 @@ class Graphic {
         this.noStyle = false;
         this.render = render;
         this.afterRender = afterRender;
+        this.uncache();
+    }
+
+    cache(x, y, width, height) {
+        if (this.cached)
+            return;
+        this.cacheCanvas.width = width;
+        this.cacheCanvas.height = height;
+        this.cacheMeta = {
+            x, y, width, height,
+        };
+        const ctx = this._ctx;
+        this._ctx = this.cacheCtx;
+        this._ctx.save();
+        this._ctx.translate(-x, -y);
+        this.render(this);
+        this._ctx.restore();
+        this._ctx = ctx;
+
+        this.cached = true;
+    }
+
+    uncache() {
+        const {
+            canvas, ctx,
+        } = getNewCanvas();
+        this.cacheCanvas = canvas;
+        this.cacheCtx = ctx;
+        this.cached = false;
     }
 
     setContext(ctx) {
@@ -139,7 +171,14 @@ class Graphic {
     }
 
     draw() {
-        this.render(this);
+        if (this.cached) {
+            const {
+                x, y, width, height,
+            } = this.cacheMeta;
+            this.drawImage(this.cacheCanvas, x, y, width, height);
+        } else {
+            this.render(this);
+        }
         return this;
     }
 
