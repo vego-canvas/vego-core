@@ -56,10 +56,13 @@ const methods = [
     'clearRect',
     'clip',
     'closePath',
-    'createImageData',
-    'createLinearGradient',
-    'createPattern',
-    'createRadialGradient',
+    /*
+     * These methods can not be chianed
+     * 'createImageData',
+     * 'createLinearGradient',
+     * 'createPattern',
+     * 'createRadialGradient',
+     */
     'drawFocusIfNeeded',
     'drawImage',
     'ellipse',
@@ -125,6 +128,10 @@ class Graphic {
         this.render = render;
         this.afterRender = afterRender;
         this.uncache();
+    }
+
+    get ctx() {
+        return this._ctx;
     }
 
     cache(x, y, width, height) {
