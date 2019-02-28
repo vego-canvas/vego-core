@@ -92,6 +92,11 @@ class EventResolver {
                     target,
                 });
             }
+            this.vegocanvas.dispatchMouseEvent(target, {
+                x, y,
+                type: 'mousemove',
+                target,
+            });
             this.oldTarget = target;
         }
     }
