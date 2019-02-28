@@ -101,7 +101,6 @@ function mkFn(properties) {
     properties.forEach((p) => {
         fn[mkFnName(p)] = function (val) {
             if (!this.noStyle && this._ctx[p] !== val) {
-                // console.log(`set ${p} = ${val}`);
                 this._ctx[p] = val;
             }
             return this;

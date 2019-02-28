@@ -19,6 +19,7 @@ export default class VegoCanvas extends Layer {
         this.canvas = matchDevicePixelRatio(canvas);
         this.ctx = this.canvas.getContext('2d');
         this.ratio = getDevicePixelRatio();
+        this.hitTestSpaceCtx = hitTestSpace.ctx;
         // cachedRect is for partial rendering
         this.repaintRect = undefined;
         // inject events
@@ -118,13 +119,11 @@ export function matchDevicePixelRatio(canvas) {
     if (ratio !== 1) {
         canvas.width = width * ratio;
         canvas.height = height * ratio;
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
     } else {
         canvas.width = width;
         canvas.height = height;
-        canvas.style.width = '';
-        canvas.style.height = '';
     }
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
     return canvas;
 }
