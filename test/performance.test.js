@@ -13,7 +13,7 @@ const colorsP = ['#828b20', '#b0ac31', '#cbc53d', '#fad779', '#f9e4ad', '#faf2db
 const rings = 40;
 const radius = 50;
 const circles = [];
-const l = 200;
+const l = 400;
 
 for (let i = 0; i < l; i++) {
     const colors = [];

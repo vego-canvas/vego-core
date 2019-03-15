@@ -1,4 +1,4 @@
-import { DisplayObject, VegoCanvas } from '..';
+import { DisplayObject, VegoCanvas, TextDisplayObject } from '..';
 
 let uid = 0;
 /*
@@ -17,6 +17,11 @@ const circle = new DisplayObject(uid++, (g) => {
 circle.$geometry.x = 50;
 circle.$geometry.y = 50;
 circle._appendTransform();
+const text = '阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大';
+const words = new TextDisplayObject(uid++, text, {
+    lineWidth: 100,
+    textAlign: 'center',
+});
 // circle._update();
 
 /*
@@ -43,4 +48,5 @@ const canvasEle = document.createElement('canvas');
 document.body.appendChild(canvasEle);
 const canvas = new VegoCanvas(canvasEle);
 canvas.addChild(circle);
+canvas.addChild(words);
 canvas.render();

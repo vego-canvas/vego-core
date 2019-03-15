@@ -1,5 +1,6 @@
 import Layer from './Layer';
 import Graphic from '../graphic';
+export { default as TextDisplayObject } from './TextDisplayObject';
 
 export default class DisplayObject extends Layer {
     constructor(uid, render, afterRender) {

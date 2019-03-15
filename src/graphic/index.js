@@ -62,6 +62,7 @@ const methods = [
      * 'createLinearGradient',
      * 'createPattern',
      * 'createRadialGradient',
+     * 'measureText'
      */
     'drawFocusIfNeeded',
     'drawImage',
@@ -74,7 +75,6 @@ const methods = [
     'isPointInPath',
     'isPointInStroke',
     'lineTo',
-    'measureText',
     'moveTo',
     'putImageData',
     'quadraticCurveTo',
@@ -189,7 +189,7 @@ class Graphic {
     }
 
     afterDraw() {
-        if (this.afterRender) {
+        if (!this.cached && this.afterRender) {
             this.afterRender(this);
         }
         return this;
