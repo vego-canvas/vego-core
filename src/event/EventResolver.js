@@ -61,7 +61,7 @@ class EventResolver {
             this.vegocanvas.dispatchMouseEvent(this.lastTarget, {
                 x,
                 y,
-                type: 'pressd',
+                type: 'pressed',
                 target: this.lastTarget,
             });
         }

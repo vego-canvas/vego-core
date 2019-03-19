@@ -32,6 +32,8 @@ class TextDisplayObject extends Layer {
     }
 
     _graphicRender(g) {
+        if (!this.text)
+            return;
         const col = this.color || '#000';
 
         if (this.outline)
@@ -51,7 +53,6 @@ class TextDisplayObject extends Layer {
     }
 
     _drawText(g) {
-        console.log(this);
         const lineHeight = this.lineHeight || this.getMeasuredLineHeight();
         if (this.lineWidth) {
             /*
@@ -94,14 +95,14 @@ class TextDisplayObject extends Layer {
             this._drawTextLine(g, line, y);
             this.boundingBox = {
                 width: maxWidth,
-                height: lineHeight + y,
+                height: ~~(lineHeight + y),
             };
         } else {
             this._drawTextLine(g, this.text, 0);
-            this.boundingBox({
+            this.boundingBox = {
                 width: this._getMeasuredWidth(this.text),
-                height: lineHeight,
-            });
+                height: ~~lineHeight,
+            };
         }
     }
 
@@ -113,6 +114,8 @@ class TextDisplayObject extends Layer {
     }
 
     _aftergraphicRender() {
+        if (!this.text)
+            return;
         const {
             width, height,
         } = this.boundingBox;

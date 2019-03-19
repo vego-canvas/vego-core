@@ -21,12 +21,16 @@ export default class Layer extends EventDispatcher {
         if (!this.$children)
             this.$children = [];
 
-        // isDirty 表示了组件是否需要被重绘 这里应该放在呢？
-        this.isDirty = false;
+        this.$parant = null;
+        /*
+         * isDirty 表示了组件是否需要被重绘 这里应该放在呢？
+         * this.isDirty = false;
+         */
     }
 
     addChild(comp) {
         this.$children.push(comp);
+        comp.$parant = this;
     }
 
     _applyTransform(ctx) {
@@ -130,5 +134,12 @@ export default class Layer extends EventDispatcher {
                 x, y, targets, condition,
             }, currentLayer + 1, currentLayerMtx);
         });
+    }
+
+    destroy() {
+        this.$children = null;
+        this.$parant = null;
+        this.$matrix = null;
+        this.$geometry = null;
     }
 }
