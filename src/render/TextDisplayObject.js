@@ -11,6 +11,9 @@ class TextDisplayObject extends Layer {
         super();
         this.uid = uid;
 
+        this.boundingBox = {};
+        const graphic = new Graphic(this._graphicRender.bind(this), this._aftergraphicRender.bind(this));
+
         // text properties
         this.text = text;
         this.font = font;
@@ -22,9 +25,6 @@ class TextDisplayObject extends Layer {
         this.outline = outline || 0;
         this.lineHeight = lineHeight || 0;
         this.lineWidth = lineWidth || null;
-
-        this.boundingBox = {};
-        const graphic = new Graphic(this._graphicRender.bind(this), this._aftergraphicRender.bind(this));
 
         Object.defineProperty(this, '$graphic', {
             value: graphic,

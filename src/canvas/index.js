@@ -112,6 +112,19 @@ export function getNewCanvas() {
 export function getDevicePixelRatio() {
     return window.devicePixelRatio || 1;
 }
+export function matchDevicePixelRatioWH(canvas, width, height) {
+    const ratio = getDevicePixelRatio();
+    if (ratio !== 1) {
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+    } else {
+        canvas.width = width;
+        canvas.height = height;
+    }
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    return canvas;
+}
 
 export function matchDevicePixelRatio(canvas) {
     const ratio = getDevicePixelRatio();
