@@ -100,6 +100,7 @@ function mkFn(properties) {
     const fn = {};
     properties.forEach((p) => {
         fn[mkFnName(p)] = function (val) {
+            // lock style to increase hit test performace
             if (!this.noStyle && this._ctx[p] !== val) {
                 this._ctx[p] = val;
             }
@@ -197,20 +198,4 @@ class Graphic {
 }
 Object.assign(Graphic.prototype, mkFn(properties));
 Object.assign(Graphic.prototype, mkMethodFn(methods));
-
-// export function setContext2d(ctx){
-
-/*
- * }
- * export function setContext2d(ctx) {
- *     Object.defineProperty(Graphic.prototype, 'ctx', {
- *         value: ctx,
- *     });
- * }
- * export function sethitCtx(ctx) {
- *     Object.defineProperty(Graphic.prototype, 'hitCtx', {
- *         value: ctx,
- *     });
- * }
- */
 export default Graphic;

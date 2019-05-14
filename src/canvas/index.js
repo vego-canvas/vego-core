@@ -1,14 +1,9 @@
 import Layer from '../render/Layer';
 import hitTest, { hitTestSpace } from '../util/hitTest';
-// import EventResolver from '../event/EventResolver';
 import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
 import TouchEventResolver from '../event/TouchEventResolver';
 import { findmax } from '../util';
-/*
- * import Graphics from '../render/graphics';
- * import { setContext2d, sethitCtx } from '../graphic';
- */
 
 export default class VegoCanvas extends Layer {
     constructor(canvas, options = {
@@ -32,18 +27,6 @@ export default class VegoCanvas extends Layer {
                 enableMouseOver: options.enableMouseOver,
             });
         }
-        /*
-         * inject Graphic context
-         * setContext2d(this.ctx);
-         * sethitCtx(hitTestSpace.ctx);
-         */
-
-        /*
-         * const graphic = new Graphics();
-         * Object.defineProperty(this, '$graphic', {
-         *     value: graphic,
-         * });
-         */
     }
 
     setRepaintRect(target) {

@@ -19,8 +19,10 @@ class Tween {
         }
         // console.log(easeFunc, isFunction(easeFunc))
         if (!isFunction(easeFunc))
-            throw new Error('easing need to be a function');
-
+            easeFunc = Easing.linear;
+            // throw new Error('easing need to be a function');
+        if (!duration)
+            throw new Error('duration need to be set');
         this.tweenlets = new Map();
         this.duration = duration;
         this.easing = easeFunc;
@@ -70,6 +72,9 @@ class Tween {
 function isPrimary(obj) {
     return ['number', 'boolean', 'string', 'undefined'].indexOf(typeof obj) !== -1;
 }
+function isArray(obj) {
+    return Array.isArray(obj);
+}
 function tweenletFactory(curr, end, context, k) {
     const p = `${curr}`;
     const T = lets.find((l) => l.pattern(p));
@@ -78,7 +83,11 @@ function tweenletFactory(curr, end, context, k) {
     }
     return new T(curr, end, context, k);
 }
-function walkInProps(props, tw, prefix) {
+
+function walkInProps(props, tw, prefix, wrapper) {
+    if (!wrapper) {
+        wrapper = (content) => `.${content}`;
+    }
     if (!isPrimary(props)) {
         // throw 'need a object root from top scope';
         for (const k in props) {
@@ -89,13 +98,18 @@ function walkInProps(props, tw, prefix) {
             const endIsPrimary = isPrimary(end);
             const currIsPrimary = isPrimary(curr);
 
-            if (!endIsPrimary && !currIsPrimary)
-                walkInProps.call(curr, end, tw, `${k}.`);
+            if (!endIsPrimary && !currIsPrimary) {
+                if (isArray(curr) && isArray(end)) {
+                    walkInProps.call(curr, end, tw, `${k}`, (content) => `[${content}]`);
+                } else {
+                    walkInProps.call(curr, end, tw, `${k}`);
+                }
+            }
             if (endIsPrimary && currIsPrimary && typeof end === typeof curr) {
                 const tweenlet = tweenletFactory(curr, end, this, k);
                 tw.addTweenlet(
                     tweenlet,
-                    `${prefix || ''}.${k}`
+                    `${prefix}${wrapper(k)}`
                 );
             }
         }

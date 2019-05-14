@@ -11,12 +11,5 @@ export default class DisplayObject extends Layer {
         Object.defineProperty(this, '$graphic', {
             value: graphic,
         });
-        // this.$render = render;
     }
-
-    /*
-     * _update() {
-     *     this.$render(this.$graphic);
-     * }
-     */
 }
