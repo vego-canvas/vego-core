@@ -1,11 +1,11 @@
 export default class Tweenlet {
-    constructor(start, end, scope, key) {
+    constructor(start, end, scope, key, setFunc) {
         this.start = start;
         this.end = end;
         this.span = this.calcDistance(end, start);
         this.value = start;
         this.setValue = () => {
-            scope[key] = this.value;
+            setFunc(scope, key, this.value);
         };
     }
 

@@ -75,16 +75,16 @@ function isPrimary(obj) {
 function isArray(obj) {
     return Array.isArray(obj);
 }
-function tweenletFactory(curr, end, context, k) {
+function tweenletFactory(curr, end, context, k, setFunc) {
     const p = `${curr}`;
     const T = lets.find((l) => l.pattern(p));
     if (!T) {
         throw new Error('no matching tweenlet!');
     }
-    return new T(curr, end, context, k);
+    return new T(curr, end, context, k, setFunc);
 }
 
-function walkInProps(props, tw, prefix, wrapper) {
+function walkInProps(props, tw, prefix, setFunc, wrapper) {
     if (!wrapper) {
         wrapper = (content) => `.${content}`;
     }
@@ -100,13 +100,13 @@ function walkInProps(props, tw, prefix, wrapper) {
 
             if (!endIsPrimary && !currIsPrimary) {
                 if (isArray(curr) && isArray(end)) {
-                    walkInProps.call(curr, end, tw, `${k}`, (content) => `[${content}]`);
+                    walkInProps.call(curr, end, tw, `${k}`, setFunc, (content) => `[${content}]`);
                 } else {
-                    walkInProps.call(curr, end, tw, `${k}`);
+                    walkInProps.call(curr, end, tw, `${k}`, setFunc);
                 }
             }
             if (endIsPrimary && currIsPrimary && typeof end === typeof curr) {
-                const tweenlet = tweenletFactory(curr, end, this, k);
+                const tweenlet = tweenletFactory(curr, end, this, k, setFunc);
                 tw.addTweenlet(
                     tweenlet,
                     `${prefix}${wrapper(k)}`
@@ -115,10 +115,16 @@ function walkInProps(props, tw, prefix, wrapper) {
         }
     }
 }
+const defaultconfig = {
+    duration: 1000,
+    easing: 'linear',
+    set: (target, key, value) => { target[key] = value; },
+};
 export default function TweenMixin(proto) {
-    proto.$to = function (props, duration, easing) {
-        const tween = new Tween(duration, easing);
-        walkInProps.call(this, props, tween);
+    proto.$to = function (props, config) {
+        config = Object.assign({}, defaultconfig, config);
+        const tween = new Tween(config.duration, config.easing);
+        walkInProps.call(this, props, tween, '', config.set);
         return tween.run();
     };
 }
