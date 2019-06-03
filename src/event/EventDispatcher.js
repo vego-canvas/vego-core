@@ -8,6 +8,8 @@ export const AVAILABLE_EVENT_TYPES = [
     'mousedown',
     'pressmove',
     'mouseup',
+    'wheel',
+    'canvaspressmove',
 ];
 
 class EventDispatcher {

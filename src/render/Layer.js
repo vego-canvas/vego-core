@@ -2,6 +2,7 @@ import EventDispatcher from '../event/EventDispatcher';
 import { mat2d } from 'gl-matrix';
 const DEG_TO_RAD = Math.PI / 180;
 // let uid = 0;
+
 export default class Layer extends EventDispatcher {
     constructor() {
         super();
@@ -77,6 +78,37 @@ export default class Layer extends EventDispatcher {
             mtx[5] -= regX * mtx[1] + regY * mtx[3];
         }
         mat2d.copy(this.$matrix, mtx);
+    }
+
+    _decompose() {
+        const target = this.$geometry;
+        const mtx = this.$matrix;
+        const a = mtx[0];
+        const b = mtx[1];
+        const c = mtx[2];
+        const d = mtx[3];
+
+        target.x = mtx[4];
+        target.y = mtx[5];
+
+        target.scaleX = Math.sqrt(a * a + b * b);
+        target.scaleY = Math.sqrt(c * c + d * d);
+
+        const skewX = Math.atan2(-c, d);
+        const skewY = Math.atan2(b, a);
+
+        const delta = Math.abs(1 - skewX / skewY);
+        if (delta < 0.00001) { // effectively identical, can use rotation:
+            target.rotation = skewY / DEG_TO_RAD;
+            if (this.a < 0 && this.d >= 0) {
+                target.rotation += (target.rotation <= 0) ? 180 : -180;
+            }
+            target.skewX = target.skewY = 0;
+        } else {
+            target.skewX = skewX / DEG_TO_RAD;
+            target.skewY = skewY / DEG_TO_RAD;
+        }
+        return target;
     }
 
     _render(ctx) {

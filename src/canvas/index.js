@@ -4,6 +4,15 @@ import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
 import TouchEventResolver from '../event/TouchEventResolver';
 import { findmax } from '../util';
+import { mat2d, mat2 } from 'gl-matrix';
+
+function transformPoint(point, mtx) {
+    console.log(mtx);
+    return {
+        x: mtx[0] * point.x + mtx[2] * point.y + mtx[4],
+        y: mtx[1] * point.x + mtx[3] * point.y + mtx[5],
+    };
+}
 
 export default class VegoCanvas extends Layer {
     constructor(canvas, options = {
@@ -27,10 +36,42 @@ export default class VegoCanvas extends Layer {
                 enableMouseOver: options.enableMouseOver,
             });
         }
+
+        this._registGesture();
     }
 
     setRepaintRect(target) {
         // TODO 获取目标元素的位置 并赋值给 repaintRect , 类似 getBoundingRect(target)
+    }
+
+    _registGesture() {
+        let cache = null;
+        this.$regist('pressed', () => {
+            cache = { x: this.$geometry.x, y: this.$geometry.y };
+        });
+        this.$regist('canvaspressmove', ({ vecX, vecY, x, y }) => {
+            this.$geometry.x = cache.x + vecX;
+            this.$geometry.y = cache.y + vecY;
+            this._appendTransform();
+            this.render();
+        });
+
+        this.$regist('wheel', (payload) => {
+            let scale = this.$matrix[0] + payload.delta.y * -0.01;
+            scale = Math.min(Math.max(0.125, scale), 4);
+            const invertMtx = mat2d.create();
+            const nextMtx = mat2d.create();
+            mat2d.invert(invertMtx, this.$matrix);
+            const point = transformPoint(payload, invertMtx);
+            nextMtx[0] = scale;
+            nextMtx[3] = scale;
+            const after = transformPoint(point, nextMtx);
+            nextMtx[4] += payload.x - after.x;
+            nextMtx[5] += payload.y - after.y;
+            this.$matrix = nextMtx;
+            this._decompose();
+            this.render();
+        });
     }
 
     render() {

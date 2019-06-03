@@ -13,6 +13,7 @@ class EventResolver {
         this.oldTarget = null;
         this.canvasboundingbox = this.vegocanvas.canvas.getBoundingClientRect();
 
+        this.canvasPressed = null;
         this.init();
     }
 
@@ -24,6 +25,7 @@ class EventResolver {
             canvas.addEventListener('mousemove', throttle(this, this.eventExtract(this.moveHandler), this.enableMouseOver));
         }
         canvas.addEventListener('mouseup', this.eventExtract(this.endHandler).bind(this));
+        canvas.addEventListener('wheel', this.eventExtract(this.wheelHandler).bind(this));
     }
 
     getPointFromEvent(e) {
@@ -39,7 +41,7 @@ class EventResolver {
             const {
                 x, y,
             } = this.getPointFromEvent(e);
-            fn.call(this, x, y);
+            fn.call(this, x, y, e);
         };
     }
 
@@ -54,17 +56,20 @@ class EventResolver {
     }
 
     startHander(x, y) {
-        const target = this.vegocanvas.getTarget(x, y);
+        let target = this.vegocanvas.getTarget(x, y);
         if (target) {
             this.lastPos = { x, y };
             this.lastTarget = target;
-            this.vegocanvas.dispatchMouseEvent(this.lastTarget, {
-                x,
-                y,
-                type: 'pressed',
-                target: this.lastTarget,
-            });
+        } else {
+            this.canvasPressed = { x, y };
         }
+        target = this.lastTarget || this.vegocanvas;
+        this.vegocanvas.dispatchMouseEvent(target, {
+            x,
+            y,
+            type: 'pressed',
+            target,
+        });
     }
 
     moveHandler(x, y) {
@@ -76,6 +81,14 @@ class EventResolver {
                 vecX: x - this.lastPos.x,
                 vecY: y - this.lastPos.y,
                 target: this.lastTarget,
+            });
+        } else if (this.canvasPressed) {
+            this.vegocanvas.dispatchMouseEvent(this.vegocanvas, {
+                x, y,
+                vecX: x - this.canvasPressed.x,
+                vecY: y - this.canvasPressed.y,
+                type: 'canvaspressmove',
+                target: this.vegocanvas,
             });
         } else {
             const target = this.vegocanvas.getTarget(x, y);
@@ -110,6 +123,20 @@ class EventResolver {
         });
         this.lastPos = null;
         this.lastTarget = null;
+        this.canvasPressed = null;
+    }
+
+    wheelHandler(x, y, e) {
+        this.vegocanvas.dispatchMouseEvent(this.vegocanvas, {
+            x, y,
+            delta: {
+                x: e.deltaX,
+                y: e.deltaY,
+                z: e.deltaZ,
+            },
+            type: 'wheel',
+            target: this.vegocanvas,
+        });
     }
 }
 export default EventResolver;
