@@ -4,10 +4,16 @@ import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
 import TouchEventResolver from '../event/TouchEventResolver';
 import { findmax } from '../util';
-import { mat2d, mat2 } from 'gl-matrix';
+import { mat2d } from 'gl-matrix';
+
+// 引入 eventPlugin
+import ClickPlugin from '../event/eventPlugins/ClickPlugin';
+import CanvasMovePlugin from '../event/eventPlugins/CanvasMovePlugin';
+import WheelPlugin from '../event/eventPlugins/WheelPlugin';
+import MouseInOutPlugin from '../event/eventPlugins/MouseInOutPlugin';
+import PressMovePlugin from '../event/eventPlugins/PressMovePlugin';
 
 function transformPoint(point, mtx) {
-    console.log(mtx);
     return {
         x: mtx[0] * point.x + mtx[2] * point.y + mtx[4],
         y: mtx[1] * point.x + mtx[3] * point.y + mtx[5],
@@ -37,6 +43,15 @@ export default class VegoCanvas extends Layer {
             });
         }
 
+        // plugin event resolvers
+        this.eventPlugins = [
+            new ClickPlugin(this, this.eventResolver),
+            new CanvasMovePlugin(this, this.eventResolver),
+            new WheelPlugin(this, this.eventResolver),
+            new MouseInOutPlugin(this, this.eventResolver),
+            new PressMovePlugin(this, this.eventResolver),
+        ];
+
         this._registGesture();
     }
 
@@ -46,10 +61,10 @@ export default class VegoCanvas extends Layer {
 
     _registGesture() {
         let cache = null;
-        this.$regist('pressed', () => {
+        this.$regist('canvaspressed', () => {
             cache = { x: this.$geometry.x, y: this.$geometry.y };
         });
-        this.$regist('canvaspressmove', ({ vecX, vecY, x, y }) => {
+        this.$regist('canvasmove', ({ vecX, vecY, x, y }) => {
             this.$geometry.x = cache.x + vecX;
             this.$geometry.y = cache.y + vecY;
             this._appendTransform();
@@ -58,7 +73,7 @@ export default class VegoCanvas extends Layer {
 
         this.$regist('wheel', (payload) => {
             let scale = this.$matrix[0] + payload.delta.y * -0.01;
-            scale = Math.min(Math.max(0.125, scale), 4);
+            scale = Math.min(Math.max(1, scale), 4);
             const invertMtx = mat2d.create();
             const nextMtx = mat2d.create();
             mat2d.invert(invertMtx, this.$matrix);

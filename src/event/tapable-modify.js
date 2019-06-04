@@ -1,8 +1,3 @@
-/**
- *  just for SyncHook Abstract
- *
- */
-
 class Hook {
     constructor(args) {
         if (!Array.isArray(args))
@@ -46,6 +41,17 @@ class Hook {
         this.promise = this._promise;
     }
 
+    _runRegisterInterceptors(options) {
+        for (const interceptor of this.interceptors) {
+            if (interceptor.register) {
+                const newOptions = interceptor.register(options);
+                if (newOptions !== undefined)
+                    options = newOptions;
+            }
+        }
+        return options;
+    }
+
     _insert(item) {
         this._resetCompilation();
         let before;
@@ -79,6 +85,15 @@ class Hook {
             break;
         }
         this.taps[i] = item;
+    }
+
+    intercept(interceptor) {
+        this._resetCompilation();
+        this.interceptors.push(Object.assign({}, interceptor));
+        if (interceptor.register) {
+            for (let i = 0; i < this.taps.length; i++)
+                this.taps[i] = interceptor.register(this.taps[i]);
+        }
     }
 }
 function createCompileDelegate(name, type) {
@@ -143,6 +158,13 @@ class HookCodeFactory {
         } else {
             return allArgs.join(', ');
         }
+    }
+
+    needContext() {
+        for (const tap of this.options.taps)
+            if (tap.context)
+                return true;
+        return false;
     }
 
     header() {

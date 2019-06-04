@@ -34,47 +34,112 @@ function colorMapping(blocks) {
 }
 const mapping = colorMapping(blocks);
 
+class Rectangle extends DisplayObject {
+    constructor(uid, color, width, height) {
+        super(uid, (g) => {
+            g.beginPath()
+                .setFillStyle(this.color)
+                .fillRect(0, 0, width, height);
+        });
+        this.color = color;
+        this.boundingBox = {
+            width, height,
+        };
+    }
+}
+
 function generateRectangle(x, y, color, width, height) {
-    const Rectangle = new DisplayObject(uid++, (g) => {
-        g.beginPath()
-            .setFillStyle(color)
-            .fillRect(0, 0, width, height);
-    });
-    Rectangle.$geometry.x = x;
-    Rectangle.$geometry.y = y;
-    Rectangle._appendTransform();
-    return Rectangle;
+    const rect = new Rectangle(uid++, color, width, height);
+    rect.$geometry.x = x;
+    rect.$geometry.y = y;
+    rect._appendTransform();
+    return rect;
 }
 
 const canvasEle = document.createElement('canvas');
 canvasEle.width = 800;
 canvasEle.height = 600;
 document.body.appendChild(canvasEle);
-const canvas = new VegoCanvas(canvasEle);
+const canvas = new VegoCanvas(canvasEle, {
+    enableMouseOver: 16,
+});
 
 const columns = 5;
 const padding = 5;
-const width = 100;
-const height = 125;
+const width = 30;
+const height = 30;
 
 let x = 0;
 let y = 0;
-blocks.forEach(({ averageResponseTime, service }, i) => {
+const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service));
+sortedBlock.forEach((block, i) => {
+    const { averageResponseTime } = block;
     const color = mapping(averageResponseTime);
     if (i % columns === 0 && i > 0) {
         x = 0;
         y += (height + padding);
     }
     const rect = generateRectangle(x, y, color, width, height);
-    const words = new TextDisplayObject(uid++, service, {
-        lineWidth: width - 2,
+
+    const words = new TextDisplayObject(uid++, '', {
+        lineWidth: (width - 2) * 10,
         textAlign: 'center',
+        textVerticalAlign: 'middle',
+        font: '40px sans-serif',
+        // nocache: true,
     });
-    rect.addChild(words);
+    words.$geometry.x = width / 2;
+    words.$geometry.scaleX = words.$geometry.scaleY = 0.1;
+    words._appendTransform();
+
+    block.vegowords = words;
     canvas.addChild(rect);
+    rect.addChild(words);
+    // rect.$regist('mouseenter', () => {
+    //     rect.color = '#000';
+    //     canvas.render();
+    // });
+    // rect.$regist('mouseleave', () => {
+    //     rect.color = color;
+    //     canvas.render();
+    // });
     x += (width + padding);
 });
+let lock = false;
+canvas.$regist('wheel', () => {
+    const scale = canvas.$geometry.scaleX;
+    if (scale > 3 && !lock) {
+        lock = true;
+        sortedBlock.forEach(({ vegowords, service, averageResponseTime }) => {
+            vegowords.text = service + '\n' + averageResponseTime.toFixed(2) + 'ms';
+        });
+        console.log('add');
+    }
+    if (scale < 3 && lock) {
+        lock = false;
+        sortedBlock.forEach(({ vegowords }) => {
+            vegowords.text = '';
+        });
+        console.log('remove');
+    }
+
+    // if (scale > 3) {
+    //     sortedBlock.forEach(({ vegowords }) => {
+    //         canvas.addChild(vegowords);
+    //     });
+    // } else {
+
+    // }
+});
 canvas.render();
+// function animate(t) {
+//     canvas.$geometry.x = Math.cos(t * Math.PI / 3600) * 200;
+//     canvas.$geometry.y = Math.sin(t * Math.PI / 3600) * 200;
+//     canvas._appendTransform();
+//     canvas.render();
+//     requestAnimationFrame(animate);
+// }
+// requestAnimationFrame(animate);
 
 /*
  * const circle = new DisplayObject(uid++, (g) => {

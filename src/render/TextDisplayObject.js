@@ -7,6 +7,7 @@ class TextDisplayObject extends Layer {
         font, color, textAlign, textBaseline,
         // maxWidth,
         outline, lineWidth, lineHeight,
+        nocache, textVerticalAlign,
     }) {
         super();
         this.uid = uid;
@@ -21,10 +22,12 @@ class TextDisplayObject extends Layer {
         // this.maxWidth = maxWidth;
         this.textAlign = textAlign || 'left';
         this.textBaseline = textBaseline || 'top';
+        this.textVerticalAlign = textVerticalAlign || 'top';
 
         this.outline = outline || 0;
         this.lineHeight = lineHeight || 0;
         this.lineWidth = lineWidth || null;
+        this.nocache = nocache || false;
 
         Object.defineProperty(this, '$graphic', {
             value: graphic,
@@ -64,11 +67,18 @@ class TextDisplayObject extends Layer {
             let line = '';
             let i;
             let test;
+            let paragraphs;
             let textWidth;
             let y = 0;
+            let needReturn = false;
 
             for (i = 0; i < words.length; i++) {
                 test = words[i];
+                paragraphs = test.split('\n');
+                if (paragraphs.length > 1) {
+                    test = paragraphs[0];
+                    needReturn = true;
+                }
                 textWidth = this._getMeasuredWidth(test);
                 while (textWidth > maxWidth) {
                     // Determine how much of the word will fit
@@ -77,7 +87,7 @@ class TextDisplayObject extends Layer {
                 }
 
                 if (words[i] !== test) {
-                    words.splice(i + 1, 0, words[i].substr(test.length));
+                    words.splice(i + 1, 0, words[i].substr(paragraphs.length > 1 ? test.length + 1 : test.length));
                     words[i] = test;
                 }
 
@@ -90,6 +100,11 @@ class TextDisplayObject extends Layer {
                     y += lineHeight;
                 } else {
                     line = test;
+                }
+                if (needReturn) {
+                    this._drawTextLine(g, test, y);
+                    line = '';
+                    y += lineHeight;
                 }
             }
             this._drawTextLine(g, line, y);
@@ -114,7 +129,13 @@ class TextDisplayObject extends Layer {
     }
 
     _aftergraphicRender() {
-        if (!this.text)
+        if (this.textVerticalAlign === 'middle'
+            && this.$parant.boundingBox.height
+            && this.boundingBox.height) {
+            this.$geometry.y = (this.$parant.boundingBox.height - this.boundingBox.height * this.$geometry.scaleY) / 2;
+            this._appendTransform();
+        }
+        if (!this.text || this.nocache)
             return;
         const {
             width, height,
@@ -137,7 +158,7 @@ class TextDisplayObject extends Layer {
     }
 
     getMeasuredLineHeight() {
-        return this._getMeasuredWidth('M') * 1.2;
+        return this._getMeasuredWidth('M') * 1.5;
     }
 
     _getMeasuredWidth(text) {
