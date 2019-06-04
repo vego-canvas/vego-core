@@ -112,13 +112,14 @@ canvas.$regist('wheel', () => {
         lock = true;
         sortedBlock.forEach(({ vegowords, service, averageResponseTime }) => {
             vegowords.text = service + '\n' + averageResponseTime.toFixed(2) + 'ms';
+            vegowords.$visible = true;
         });
         console.log('add');
     }
     if (scale < 3 && lock) {
         lock = false;
         sortedBlock.forEach(({ vegowords }) => {
-            vegowords.text = '';
+            vegowords.$visible = false;
         });
         console.log('remove');
     }

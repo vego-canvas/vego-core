@@ -21,7 +21,7 @@ export default class Layer extends EventDispatcher {
         };
         if (!this.$children)
             this.$children = [];
-
+        this.$visible = true;
         this.$parant = null;
         /*
          * isDirty 表示了组件是否需要被重绘 这里应该放在呢？
@@ -116,6 +116,8 @@ export default class Layer extends EventDispatcher {
          * 父组件先与子组件绘制
          * console.log(`${this.name} graphics ${this.$graphic.instructions.length}`)
          */
+        if (!this.$visible)
+            return;
         this._applyTransform(ctx);
         if (this.$graphic) {
             this.$graphic
