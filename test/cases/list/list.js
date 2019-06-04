@@ -59,15 +59,34 @@ function generateRectangle(x, y, color, width, height) {
 const canvasEle = document.createElement('canvas');
 canvasEle.width = 800;
 canvasEle.height = 600;
+canvasEle.style.border = '1px solid #000';
 document.body.appendChild(canvasEle);
 const canvas = new VegoCanvas(canvasEle, {
     enableMouseOver: 16,
 });
 
-const columns = 5;
+const thumbnail = document.createElement('div');
+thumbnail.style.width = '200px';
+thumbnail.style.height = '150px';
+thumbnail.style.border = '1px solid #000';
+thumbnail.style.position = 'relative';
+// thumbnail.style.overflow = 'hidden';
+document.body.appendChild(thumbnail);
+
+const thumbnailIndicator = document.createElement('div');
+thumbnailIndicator.style.width = '200px';
+thumbnailIndicator.style.height = '150px';
+thumbnailIndicator.style.border = '1px solid #000';
+thumbnailIndicator.style.position = 'absolute';
+// thumbnailIndicator.style.left = '-300px';
+// thumbnailIndicator.style.top = '-225px';
+thumbnailIndicator.style['transform-origin'] = 'center';
+thumbnail.appendChild(thumbnailIndicator);
+
 const padding = 5;
 const width = 30;
 const height = 30;
+const columns = (800 + padding) / (width + padding);
 
 let x = 0;
 let y = 0;
@@ -123,16 +142,29 @@ canvas.$regist('wheel', () => {
         });
         console.log('remove');
     }
-
-    // if (scale > 3) {
-    //     sortedBlock.forEach(({ vegowords }) => {
-    //         canvas.addChild(vegowords);
-    //     });
-    // } else {
-
-    // }
 });
+
+function renderIndicator() {
+    const geo = canvas.$geometry;
+    const x = geo.x / geo.scaleX;
+    const y = geo.y / geo.scaleY;
+    const width = 800 / geo.scaleX;
+    const height = 600 / geo.scaleY;
+    const ratio = 4;
+    thumbnailIndicator.style.width = `${width / ratio}px`;
+    thumbnailIndicator.style.height = `${height / ratio}px`;
+    thumbnailIndicator.style.left = `${-x / ratio}px`;
+    thumbnailIndicator.style.top = `${-y / ratio}px`;
+}
+canvas.$regist('wheel', renderIndicator);
+canvas.$regist('canvasmove', renderIndicator);
 canvas.render();
+const img = canvas.saveImage();
+const imgEl = document.createElement('img');
+imgEl.src = img;
+imgEl.style.width = '100%';
+thumbnail.appendChild(imgEl);
+
 // function animate(t) {
 //     canvas.$geometry.x = Math.cos(t * Math.PI / 3600) * 200;
 //     canvas.$geometry.y = Math.sin(t * Math.PI / 3600) * 200;

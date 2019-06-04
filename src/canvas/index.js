@@ -137,6 +137,10 @@ export default class VegoCanvas extends Layer {
     getTarget(x, y) {
         return findmax(this.getTargetsUnderPoint(x, y), 'uid');
     }
+
+    saveImage() {
+        return this.canvas.toDataURL();
+    }
 }
 
 export function getNewCanvas() {
