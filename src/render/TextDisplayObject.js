@@ -57,6 +57,7 @@ class TextDisplayObject extends Layer {
 
     _drawText(g) {
         const lineHeight = this.lineHeight || this.getMeasuredLineHeight();
+        this.lineHeight = lineHeight;
         if (this.lineWidth) {
             /*
              * text wrapping
@@ -132,7 +133,9 @@ class TextDisplayObject extends Layer {
         if (this.textVerticalAlign === 'middle'
             && this.$parant.boundingBox.height
             && this.boundingBox.height) {
-            this.$geometry.y = (this.$parant.boundingBox.height - this.boundingBox.height * this.$geometry.scaleY) / 2;
+            this.$geometry.y = (this.$parant.boundingBox.height
+                - this.boundingBox.height * this.$geometry.scaleY
+                + this.lineHeight * this.$geometry.scaleY) / 2;
             this._appendTransform();
         }
         if (!this.text || this.nocache)
