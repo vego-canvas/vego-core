@@ -8,11 +8,12 @@ importAll(require.context('./eventPlugins', true, /\.js/));
 
 class EventDispatcher {
     constructor() {
-        this._listeners = [];
+        this._listeners = {};
         this.ratio = 1;
         cache.forEach(({ support }) => {
             support.forEach((t) => this._listeners[t] = []);
         });
+
         // AVAILABLE_EVENT_TYPES.forEach((t) => this._listeners[t] = []);
     }
 

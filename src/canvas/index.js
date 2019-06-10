@@ -3,7 +3,7 @@ import hitTest, { hitTestSpace } from '../util/hitTest';
 import { MouseEvent } from '../event/Event';
 import EventResolver from '../event/EventResolver';
 import TouchEventResolver from '../event/TouchEventResolver';
-import { findmax } from '../util';
+import { findmax, transformPoint } from '../util';
 import { mat2d } from 'gl-matrix';
 
 // 引入 eventPlugin
@@ -12,13 +12,6 @@ import CanvasMovePlugin from '../event/eventPlugins/CanvasMovePlugin';
 import WheelPlugin from '../event/eventPlugins/WheelPlugin';
 import MouseInOutPlugin from '../event/eventPlugins/MouseInOutPlugin';
 import PressMovePlugin from '../event/eventPlugins/PressMovePlugin';
-
-function transformPoint(point, mtx) {
-    return {
-        x: mtx[0] * point.x + mtx[2] * point.y + mtx[4],
-        y: mtx[1] * point.x + mtx[3] * point.y + mtx[5],
-    };
-}
 
 export default class VegoCanvas extends Layer {
     constructor(canvas, options = {

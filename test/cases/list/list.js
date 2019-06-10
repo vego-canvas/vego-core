@@ -88,14 +88,14 @@ const width = 30;
 const height = 30;
 const columns = (800 + padding) / (width + padding);
 
-let x = 0;
-let y = 0;
-const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service));
+let x = padding;
+let y = padding;
+const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service)).slice(0, 2);
 sortedBlock.forEach((block, i) => {
     const { averageResponseTime } = block;
     const color = mapping(averageResponseTime);
     if (i % columns === 0 && i > 0) {
-        x = 0;
+        x = padding;
         y += (height + padding);
     }
     const rect = generateRectangle(x, y, color, width, height);
@@ -113,15 +113,21 @@ sortedBlock.forEach((block, i) => {
 
     block.vegowords = words;
     canvas.addChild(rect);
-    rect.addChild(words);
-    // rect.$regist('mouseenter', () => {
-    //     rect.color = '#000';
-    //     canvas.render();
-    // });
-    // rect.$regist('mouseleave', () => {
-    //     rect.color = color;
-    //     canvas.render();
-    // });
+    // rect.addChild(words);
+    console.log(block.service);
+    const px = x;
+    const py = y;
+    rect.$regist('mouseenter', () => {
+        rect.color = '#000';
+        const payload = { x: px, y: py };
+        const point = rect.localToGlobal(payload);
+        console.log(payload, point);
+        canvas.render();
+    });
+    rect.$regist('mouseleave', () => {
+        rect.color = color;
+        canvas.render();
+    });
     x += (width + padding);
 });
 let lock = false;

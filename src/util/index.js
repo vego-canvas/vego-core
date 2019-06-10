@@ -7,7 +7,7 @@ export function findmax(array, key) {
     let counter;
 
     for (counter = 0; counter < a; counter++) {
-        if (array[counter][key] > max) {
+        if (array[counter][key] >= max) {
             max = array[counter][key];
             target = array[counter];
         }
@@ -31,4 +31,11 @@ export function isFunction(t) {
 
 export function isPureObject(obj) {
     return (obj.constructor && obj.constructor === Object);
+}
+
+export function transformPoint(point, mtx) {
+    return {
+        x: mtx[0] * point.x + mtx[2] * point.y + mtx[4],
+        y: mtx[1] * point.x + mtx[3] * point.y + mtx[5],
+    };
 }

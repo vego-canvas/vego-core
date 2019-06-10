@@ -5,7 +5,6 @@ export default class MouseInOutPlugin {
         eventResolver.hooks.mousemove.tap('MouseInOutPlugin', (event) => {
             const { x, y } = event.coordinate;
             const target = event.vegoTarget || (event.vegoTarget = this.vegocanvas.getTarget(x, y));
-
             if (this.oldTarget !== target) {
                 if (this.oldTarget)
                     this.vegocanvas.dispatchMouseEvent(this.oldTarget, {

@@ -1,5 +1,6 @@
 import EventDispatcher from '../event/EventDispatcher';
 import { mat2d } from 'gl-matrix';
+import { transformPoint } from '../util';
 const DEG_TO_RAD = Math.PI / 180;
 // let uid = 0;
 
@@ -78,6 +79,21 @@ export default class Layer extends EventDispatcher {
             mtx[5] -= regX * mtx[1] + regY * mtx[3];
         }
         mat2d.copy(this.$matrix, mtx);
+    }
+
+    localToGlobal(payload) {
+        const matlist = [this.$matrix];
+        let layer = this.$parant;
+        while (layer) {
+            matlist.unshift(layer.$matrix);
+            layer = layer.$parant;
+        }
+        const matall = mat2d.create();
+        matlist.forEach((m) => {
+            mat2d.mul(matall, matall, m);
+        });
+        const point = transformPoint(payload, matall);
+        return point;
     }
 
     _decompose() {

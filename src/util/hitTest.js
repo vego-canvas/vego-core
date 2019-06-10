@@ -4,10 +4,9 @@ export const hitTestSpace = getNewCanvas();
 const ctx = hitTestSpace.ctx;
 hitTestSpace.canvas.width = hitTestSpace.canvas.height = 1;
 
-/*
- * hitTestSpace.canvas.width = hitTestSpace.canvas.height = 300;
- * document.body.append(hitTestSpace.canvas);
- */
+//  hitTestSpace.canvas.width = hitTestSpace.canvas.height = 300;
+//  document.body.append(hitTestSpace.canvas);
+
 export default function (x, y, mtx, g, ratio = 1) {
     if (!g)
         return false;
