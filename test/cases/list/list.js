@@ -60,6 +60,7 @@ const canvasEle = document.createElement('canvas');
 canvasEle.width = 800;
 canvasEle.height = 600;
 canvasEle.style.border = '1px solid #000';
+canvasEle.style.marginLeft = '100px';
 document.body.appendChild(canvasEle);
 const canvas = new VegoCanvas(canvasEle, {
     enableMouseOver: 16,
@@ -121,8 +122,8 @@ sortedBlock.forEach((block, i) => {
         rect.color = '#000';
         const payload = { x: px, y: py };
         const point = rect.localToGlobal(payload);
-        console.log(payload, point);
         canvas.render();
+        console.log(point);
     });
     rect.$regist('mouseleave', () => {
         rect.color = color;

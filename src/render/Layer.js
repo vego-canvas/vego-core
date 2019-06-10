@@ -176,6 +176,7 @@ export default class Layer extends EventDispatcher {
         else
             mat2d.multiply(currentLayerMtx, mtx, this.$matrix);
         const children = this.$children;
+        // 这边可能的话应该过滤下事件吧
         if (condition(x, y, currentLayerMtx, this.$graphic)) {
             targets.push(this);
         }

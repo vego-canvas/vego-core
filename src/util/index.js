@@ -1,4 +1,4 @@
-export function findmax(array, key) {
+export function findmax(array, key, condition) {
     let max = 0;
     let target = null;
     const a = array.length;
@@ -7,7 +7,7 @@ export function findmax(array, key) {
     let counter;
 
     for (counter = 0; counter < a; counter++) {
-        if (array[counter][key] >= max) {
+        if (array[counter][key] >= max && condition(array[counter])) {
             max = array[counter][key];
             target = array[counter];
         }
