@@ -56,15 +56,43 @@ function generateRectangle(x, y, color, width, height) {
     return rect;
 }
 
+const canvasContainer = document.createElement('div');
+canvasContainer.style.position = 'relative';
 const canvasEle = document.createElement('canvas');
 canvasEle.width = 800;
 canvasEle.height = 600;
 canvasEle.style.border = '1px solid #000';
-canvasEle.style.marginLeft = '100px';
-document.body.appendChild(canvasEle);
+canvasContainer.style.marginLeft = '100px';
+canvasContainer.style.marginTop = '100px';
+document.body.appendChild(canvasContainer);
+canvasContainer.appendChild(canvasEle);
 const canvas = new VegoCanvas(canvasEle, {
     enableMouseOver: 16,
 });
+
+const floatBlock = document.createElement('div');
+const floatBlockTitle = document.createElement('h1');
+const floatBlockContent = document.createElement('p');
+floatBlock.appendChild(floatBlockTitle);
+floatBlock.appendChild(floatBlockContent);
+function renderFloatBlock(title, content, x, y) {
+    floatBlockTitle.innerText = title;
+    floatBlockContent.innerText = content;
+    floatBlock.style.display = 'block';
+    floatBlock.style.left = `${x}px`;
+    floatBlock.style.top = `${y}px`;
+}
+function hideFloatBlock() {
+    floatBlock.style.display = 'none';
+}
+floatBlock.style.position = 'absolute';
+floatBlock.style.left = '0';
+floatBlock.style.top = '0';
+floatBlock.style.display = 'none';
+floatBlock.style.transform = 'translate(-50%, -100%)';
+floatBlock.style.background = '#000';
+floatBlock.style.color = '#fff';
+canvasContainer.appendChild(floatBlock);
 
 const thumbnail = document.createElement('div');
 thumbnail.style.width = '200px';
@@ -91,7 +119,7 @@ const columns = (800 + padding) / (width + padding);
 
 let x = padding;
 let y = padding;
-const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service)).slice(0, 2);
+const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service)).slice(0, 3);
 sortedBlock.forEach((block, i) => {
     const { averageResponseTime } = block;
     const color = mapping(averageResponseTime);
@@ -120,14 +148,16 @@ sortedBlock.forEach((block, i) => {
     const py = y;
     rect.$regist('mouseenter', () => {
         rect.color = '#000';
-        const payload = { x: px, y: py };
+        const payload = { x: width / 2, y: 0 };
         const point = rect.localToGlobal(payload);
         canvas.render();
+        renderFloatBlock(block.service, block.averageResponseTime, point.x, point.y);
         console.log(point);
     });
     rect.$regist('mouseleave', () => {
         rect.color = color;
         canvas.render();
+        hideFloatBlock();
     });
     x += (width + padding);
 });

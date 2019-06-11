@@ -82,16 +82,15 @@ export default class Layer extends EventDispatcher {
     }
 
     localToGlobal(payload) {
-        const matlist = [this.$matrix];
+        // const matlist = [this.$matrix];
         let layer = this.$parant;
+        const matall = mat2d.create();
+        mat2d.copy(matall, this.$matrix);
         while (layer) {
-            matlist.unshift(layer.$matrix);
+            mat2d.mul(matall, layer.$matrix, matall);
             layer = layer.$parant;
         }
-        const matall = mat2d.create();
-        matlist.forEach((m) => {
-            mat2d.mul(matall, matall, m);
-        });
+
         const point = transformPoint(payload, matall);
         return point;
     }
