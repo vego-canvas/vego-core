@@ -17,6 +17,7 @@ export default class VegoCanvas extends Layer {
     constructor(canvas, options = {
         enableMouseOver: 50, // TODO: lower cpu usage, 0 to disable mouseover event
         enableTouch: false, // TODO: enable touch events
+        disableCanvasmove: false,
     }) {
         super();
         this.canvas = matchDevicePixelRatio(canvas);
@@ -44,8 +45,9 @@ export default class VegoCanvas extends Layer {
             new MouseInOutPlugin(this, this.eventResolver),
             new PressMovePlugin(this, this.eventResolver),
         ];
-
-        this._registGesture();
+        if (!options.disableCanvasmove) {
+            this._registGesture();
+        }
     }
 
     setRepaintRect(target) {

@@ -39,3 +39,6 @@ export function transformPoint(point, mtx) {
         y: mtx[1] * point.x + mtx[3] * point.y + mtx[5],
     };
 }
+
+let uid = 0;
+export function getUID() { return uid++; }

@@ -3,14 +3,14 @@ import Graphic from '../graphic';
 import { getNewCanvas } from '../canvas';
 
 class TextDisplayObject extends Layer {
-    constructor(uid, text, {
+    constructor(text, {
         font, color, textAlign, textBaseline,
         // maxWidth,
         outline, lineWidth, lineHeight,
         nocache, textVerticalAlign,
     }) {
         super();
-        this.uid = uid;
+        // this.uid = uid;
 
         this.boundingBox = {};
         const graphic = new Graphic(this._graphicRender.bind(this), this._aftergraphicRender.bind(this));

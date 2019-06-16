@@ -1,14 +1,13 @@
 import EventDispatcher from '../event/EventDispatcher';
 import { mat2d } from 'gl-matrix';
-import { transformPoint } from '../util';
+import { transformPoint, getUID } from '../util';
 const DEG_TO_RAD = Math.PI / 180;
 // let uid = 0;
-
 export default class Layer extends EventDispatcher {
-    constructor() {
+    constructor(options) {
         super();
         this.$matrix = mat2d.create();
-
+        this.uid = (options && options.uid) || getUID();
         this.$geometry = {
             x: 0,
             y: 0,
