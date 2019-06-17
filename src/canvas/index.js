@@ -69,19 +69,23 @@ export default class VegoCanvas extends Layer {
         this.$regist('wheel', (payload) => {
             let scale = this.$matrix[0] + payload.delta.y * -0.01;
             scale = Math.min(Math.max(1, scale), 4);
-            const invertMtx = mat2d.create();
-            const nextMtx = mat2d.create();
-            mat2d.invert(invertMtx, this.$matrix);
-            const point = transformPoint(payload, invertMtx);
-            nextMtx[0] = scale;
-            nextMtx[3] = scale;
-            const after = transformPoint(point, nextMtx);
-            nextMtx[4] += payload.x - after.x;
-            nextMtx[5] += payload.y - after.y;
-            this.$matrix = nextMtx;
-            this._decompose();
+            this.scaleAboutPoint(payload, scale);
             this.render();
         });
+    }
+
+    scaleAboutPoint(o, scale) {
+        const invertMtx = mat2d.create();
+        const nextMtx = mat2d.create();
+        mat2d.invert(invertMtx, this.$matrix);
+        const point = transformPoint(o, invertMtx);
+        nextMtx[0] = scale;
+        nextMtx[3] = scale;
+        const after = transformPoint(point, nextMtx);
+        nextMtx[4] += o.x - after.x;
+        nextMtx[5] += o.y - after.y;
+        this.$matrix = nextMtx;
+        this._decompose();
     }
 
     render() {

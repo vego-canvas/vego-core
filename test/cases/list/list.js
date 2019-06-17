@@ -1,244 +1,262 @@
-import { DisplayObject, VegoCanvas, TextDisplayObject } from '../../../';
-import data from './block.json';
-let uid = 0;
-const blocks = data.result.result;
-/*
- * const circle = new DisplayObject(uid++, (g) => {
- *     g.clear()、
- *         .beginFill('red')
- *         .drawCircle(0, 0, 50);
- * });
- */
+import {
+    DisplayObject, VegoCanvas, TextDisplayObject,
+} from '../../../index';
+const DEFAULT = {
+    width: 30,
+    height: 30,
+    padding: 5,
+};
 
-function colorMapping(blocks) {
-    let min;
-    let max;
-    min = max = blocks[0].averageResponseTime;
-    blocks.forEach(({ averageResponseTime }) => {
-        min = min > averageResponseTime ? averageResponseTime : min;
-        max = max > averageResponseTime ? max : averageResponseTime;
-    });
-    const step = Math.ceil((max - min) / 3);
-    const arr = [
-        { max: min + step, color: '#8EB7FF' },
-        { max: min + step * 2, color: '#3B72E2' },
-        { max: min + step * 3, color: '#F88D29' },
-    ];
-    return function (t) {
-        return arr.find(({ max, color }) => {
-            if (t < max)
-                return color;
-            return false;
-        }).color;
-    };
-}
-const mapping = colorMapping(blocks);
-
-class Rectangle extends DisplayObject {
-    constructor(uid, color, width, height) {
-        super(uid, (g) => {
-            g.beginPath()
-                .setFillStyle(this.color)
-                .fillRect(0, 0, width, height);
-        });
-        this.color = color;
-        this.boundingBox = {
-            width, height,
-        };
-    }
-}
+// class Rectangle extends DisplayObject {
+//     constructor(uid, color, width, height) {
+//         super(uid, (g) => {
+//             g.beginPath()
+//                 .setFillStyle(this.color)
+//                 .fillRect(0, 0, width, height);
+//         });
+//         this.color = color;
+//         this.boundingBox = {
+//             width, height,
+//         };
+//     }
+// }
 
 function generateRectangle(x, y, color, width, height) {
-    const rect = new Rectangle(uid++, color, width, height);
+    // const rect = new Rectangle(uid++, color, width, height);
+    const rect = new DisplayObject({ render(g) {
+        g.beginPath()
+            .setFillStyle(color)
+            .fillRect(0, 0, width, height);
+    } });
+    rect.boundingBox = {
+        width, height,
+    };
     rect.$geometry.x = x;
     rect.$geometry.y = y;
     rect._appendTransform();
     return rect;
 }
 
+class BlockDashboard {
+    constructor({
+        canvasEle,
+        width, height,
+        padding,
+        pointviewCallback,
+        stateChangeCallback,
+    }) {
+        this.canvasEle = canvasEle;
+        this.blockWidth = width || DEFAULT.width;
+        this.blockHeight = height || DEFAULT.height;
+        this.blockPadding = padding || DEFAULT.padding;
+        const bounding = this.canvasEle.getBoundingClientRect();
+        this.width = bounding.width;
+        this.height = bounding.height;
+        // this.columns = (this.width + this.blockPadding) / (this.blockWidth + this.blockPadding);
+
+        /* eslint-disable-next-line */
+        this.stateChangeCallback = stateChangeCallback || (() => {});
+        const canvas = this.canvas = new VegoCanvas(canvasEle, {
+            enableMouseOver: 16,
+        });
+        const r = () => {
+            this.renderIndicator(pointviewCallback);
+        };
+        this.canvas.$regist('wheel', r);
+        this.canvas.$regist('canvasmove', r);
+        this.sortedBlock = [];
+        let lock = false;
+        canvas.$regist('wheel', () => {
+            const scale = canvas.$geometry.scaleX;
+            if (scale > 3 && !lock) {
+                lock = true;
+                this.toggleText(true);
+            }
+            if (scale < 3 && lock) {
+                lock = false;
+                this.toggleText(false);
+            }
+        });
+    }
+
+    toggleText(flag) {
+        this.sortedBlock.forEach(({ vegowords, service, indicator }) => {
+            if (flag)
+                vegowords.text = service + '\n' + indicator.toFixed(2) + 'ms';
+            vegowords.$visible = flag;
+        });
+    }
+
+    colorMapping(blocks, key) {
+        let min;
+        let max;
+        min = max = blocks[0][key];
+        blocks.forEach((b) => {
+            const i = b[key];
+            min = min > i ? i : min;
+            max = max > i ? max : i;
+        });
+        const step = Math.ceil((max - min) / 3);
+        const arr = this.colorMappingArr = [
+            { max: min + step, color: '#8EB7FF' },
+            { max: min + step * 2, color: '#3B72E2' },
+            { max: min + step * 3, color: '#F88D29' },
+        ];
+        return function (t) {
+            const p = arr.find(({ max, color }) => {
+                if (t <= max)
+                    return color;
+                return false;
+            }).color;
+            return p;
+        };
+    }
+
+    reflow() {
+        const {
+            width, height,
+            blockWidth,
+            blockHeight,
+            blockPadding,
+        } = this;
+        const length = this.sortedBlock.length;
+        const columnCapacity = Math.ceil(Math.sqrt(length));
+        const AllWidth = blockWidth * columnCapacity + blockPadding * (columnCapacity - 1);
+        const rowCapacity = Math.ceil(length / columnCapacity);
+        const AllHeight = blockHeight * rowCapacity + blockPadding * (rowCapacity - 1);
+        const container = new DisplayObject({
+            render() {},
+        });
+        const scale = Math.min(Math.max(1, (height - blockPadding * 2) / AllHeight), 4);
+        container.$geometry.x = (width - AllWidth) / 2;
+        container.$geometry.y = (height - AllHeight) / 2;
+        container._appendTransform();
+        return {
+            scale,
+            container,
+            columnCapacity,
+            rowCapacity,
+        };
+    }
+
+    draw(blocks, key) {
+        const mapping = this.colorMapping(blocks, key);
+
+        const {
+            blockWidth,
+            blockHeight,
+            blockPadding,
+            canvas,
+        } = this;
+        canvas.$children = [];
+        canvas.$geometry = { x: 0,
+            y: 0,
+            rotation: 0,
+            scaleX: 1,
+            scaleY: 1,
+            skewX: 0,
+            skewY: 0,
+            regX: 0,
+            regY: 0 };
+        canvas._appendTransform();
+        let x = 0;
+        let y = 0;
+        const sortedBlock = this.sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service));
+        const {
+            scale,
+            container,
+            columnCapacity,
+            rowCapacity,
+        } = this.reflow();
+        canvas.addChild(container);
+        sortedBlock.forEach((block, i) => {
+            const indicator = block[key];
+            const color = mapping(indicator);
+            if (i % columnCapacity === 0 && i > 0) {
+                x = 0;
+                y += (blockHeight + blockPadding);
+            }
+            const rect = generateRectangle(x, y, color, blockWidth, blockHeight);
+            const words = new TextDisplayObject('', {
+                lineWidth: (blockWidth - 2) * 10,
+                textAlign: 'center',
+                textVerticalAlign: 'middle',
+                font: '40px sans-serif',
+                // nocache: true,
+            });
+            words.$geometry.x = blockWidth / 2;
+            words.$geometry.scaleX = words.$geometry.scaleY = 0.1;
+            words._appendTransform();
+
+            block.vegowords = words;
+            block.indicator = indicator;
+            container.addChild(rect);
+            rect.addChild(words);
+            rect.$regist('mouseenter', () => {
+                const payload = { x: blockWidth / 2, y: 0 };
+                const point = rect.localToGlobal(payload);
+                this.stateChangeCallback({
+                    state: true,
+                    target: block,
+                    x: point.x,
+                    y: point.y,
+                });
+            });
+            rect.$regist('mouseleave', () => {
+                this.stateChangeCallback({
+                    state: false,
+                    target: block,
+                });
+            });
+            x += (blockWidth + blockPadding);
+        });
+        if (canvas.$geometry.scaleX > 3) {
+            this.toggleText(true);
+        }
+
+        canvas.render();
+        const img = canvas.saveImage();
+        canvas.scaleAboutPoint({
+            x: this.width / 2,
+            y: this.height / 2,
+        }, scale);
+        canvas.render();
+        return img;
+    }
+
+    renderIndicator(callback) {
+        const geo = this.canvas.$geometry;
+        const x = geo.x / geo.scaleX;
+        const y = geo.y / geo.scaleY;
+        const width = this.width / geo.scaleX;
+        const height = this.height / geo.scaleY;
+        const ratio = 4;
+        callback({
+            width: width / ratio,
+            height: height / ratio,
+            left: -x / ratio,
+            top: -y / ratio,
+        });
+    }
+}
+
 const canvasContainer = document.createElement('div');
 canvasContainer.style.position = 'relative';
+canvasContainer.style.width = '800px';
+canvasContainer.style.height = '600px';
 const canvasEle = document.createElement('canvas');
 canvasEle.width = 800;
 canvasEle.height = 600;
-canvasEle.style.border = '1px solid #000';
-canvasContainer.style.marginLeft = '100px';
-canvasContainer.style.marginTop = '100px';
-document.body.appendChild(canvasContainer);
+canvasContainer.style.border = '1px solid #000';
 canvasContainer.appendChild(canvasEle);
-const canvas = new VegoCanvas(canvasEle, {
-    enableMouseOver: 16,
+document.body.appendChild(canvasContainer);
+
+const board = new BlockDashboard({
+    canvasEle,
+    pointviewCallback: () => {},
+    stateChangeCallback: () => {},
 });
 
-const floatBlock = document.createElement('div');
-const floatBlockTitle = document.createElement('h1');
-const floatBlockContent = document.createElement('p');
-floatBlock.appendChild(floatBlockTitle);
-floatBlock.appendChild(floatBlockContent);
-function renderFloatBlock(title, content, x, y) {
-    floatBlockTitle.innerText = title;
-    floatBlockContent.innerText = content;
-    floatBlock.style.display = 'block';
-    floatBlock.style.left = `${x}px`;
-    floatBlock.style.top = `${y}px`;
-}
-function hideFloatBlock() {
-    floatBlock.style.display = 'none';
-}
-floatBlock.style.position = 'absolute';
-floatBlock.style.left = '0';
-floatBlock.style.top = '0';
-floatBlock.style.display = 'none';
-floatBlock.style.transform = 'translate(-50%, -100%)';
-floatBlock.style.background = '#000';
-floatBlock.style.color = '#fff';
-canvasContainer.appendChild(floatBlock);
-
-const thumbnail = document.createElement('div');
-thumbnail.style.width = '200px';
-thumbnail.style.height = '150px';
-thumbnail.style.border = '1px solid #000';
-thumbnail.style.position = 'relative';
-// thumbnail.style.overflow = 'hidden';
-document.body.appendChild(thumbnail);
-
-const thumbnailIndicator = document.createElement('div');
-thumbnailIndicator.style.width = '200px';
-thumbnailIndicator.style.height = '150px';
-thumbnailIndicator.style.border = '1px solid #000';
-thumbnailIndicator.style.position = 'absolute';
-// thumbnailIndicator.style.left = '-300px';
-// thumbnailIndicator.style.top = '-225px';
-thumbnailIndicator.style['transform-origin'] = 'center';
-thumbnail.appendChild(thumbnailIndicator);
-
-const padding = 5;
-const width = 30;
-const height = 30;
-const columns = (800 + padding) / (width + padding);
-
-let x = padding;
-let y = padding;
-const sortedBlock = blocks.sort((a, b) => a.service.localeCompare(b.service)).slice(0, 3);
-sortedBlock.forEach((block, i) => {
-    const { averageResponseTime } = block;
-    const color = mapping(averageResponseTime);
-    if (i % columns === 0 && i > 0) {
-        x = padding;
-        y += (height + padding);
-    }
-    const rect = generateRectangle(x, y, color, width, height);
-
-    const words = new TextDisplayObject(uid++, '', {
-        lineWidth: (width - 2) * 10,
-        textAlign: 'center',
-        textVerticalAlign: 'middle',
-        font: '40px sans-serif',
-        // nocache: true,
-    });
-    words.$geometry.x = width / 2;
-    words.$geometry.scaleX = words.$geometry.scaleY = 0.1;
-    words._appendTransform();
-
-    block.vegowords = words;
-    canvas.addChild(rect);
-    // rect.addChild(words);
-    console.log(block.service);
-    const px = x;
-    const py = y;
-    rect.$regist('mouseenter', () => {
-        rect.color = '#000';
-        const payload = { x: width / 2, y: 0 };
-        const point = rect.localToGlobal(payload);
-        canvas.render();
-        renderFloatBlock(block.service, block.averageResponseTime, point.x, point.y);
-        console.log(point);
-    });
-    rect.$regist('mouseleave', () => {
-        rect.color = color;
-        canvas.render();
-        hideFloatBlock();
-    });
-    x += (width + padding);
-});
-let lock = false;
-canvas.$regist('wheel', () => {
-    const scale = canvas.$geometry.scaleX;
-    if (scale > 3 && !lock) {
-        lock = true;
-        sortedBlock.forEach(({ vegowords, service, averageResponseTime }) => {
-            vegowords.text = service + '\n' + averageResponseTime.toFixed(2) + 'ms';
-            vegowords.$visible = true;
-        });
-        console.log('add');
-    }
-    if (scale < 3 && lock) {
-        lock = false;
-        sortedBlock.forEach(({ vegowords }) => {
-            vegowords.$visible = false;
-        });
-        console.log('remove');
-    }
-});
-
-function renderIndicator() {
-    const geo = canvas.$geometry;
-    const x = geo.x / geo.scaleX;
-    const y = geo.y / geo.scaleY;
-    const width = 800 / geo.scaleX;
-    const height = 600 / geo.scaleY;
-    const ratio = 4;
-    thumbnailIndicator.style.width = `${width / ratio}px`;
-    thumbnailIndicator.style.height = `${height / ratio}px`;
-    thumbnailIndicator.style.left = `${-x / ratio}px`;
-    thumbnailIndicator.style.top = `${-y / ratio}px`;
-}
-canvas.$regist('wheel', renderIndicator);
-canvas.$regist('canvasmove', renderIndicator);
-canvas.render();
-const img = canvas.saveImage();
-const imgEl = document.createElement('img');
-imgEl.src = img;
-imgEl.style.width = '100%';
-thumbnail.appendChild(imgEl);
-
-// function animate(t) {
-//     canvas.$geometry.x = Math.cos(t * Math.PI / 3600) * 200;
-//     canvas.$geometry.y = Math.sin(t * Math.PI / 3600) * 200;
-//     canvas._appendTransform();
-//     canvas.render();
-//     requestAnimationFrame(animate);
-// }
-// requestAnimationFrame(animate);
-
-/*
- * const circle = new DisplayObject(uid++, (g) => {
- *     g.beginPath()
- *         .setFillStyle('red')
- *         .arc(0, 0, 50, 0, Math.PI * 2)
- *         .fill();
- * });
- * circle.$geometry.x = 50;
- * circle.$geometry.y = 50;
- * circle._appendTransform();
- * const text = '阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大阿斯达大';
- * const words = new TextDisplayObject(uid++, text, {
- *     lineWidth: 100,
- *     textAlign: 'center',
- * });
- */
-
-/*
- * const circle2 = new DisplayObject(uid++, (g) => {
- *     g.beginPath()
- *         .setFillStyle('red')
- *         .arc(0, 0, 50, 0, Math.PI * 2)
- *         .fill();
- * });
- * circle2.$geometry.x = 30;
- * circle2.$geometry.y = 30;
- * circle2._appendTransform();
- * // circle2._update();
- */
-
-// circle.addChild(circle2);
+const json = require('./block.json');
+console.log(json);
+board.draw(json.result.result, 'averageResponseTime');
