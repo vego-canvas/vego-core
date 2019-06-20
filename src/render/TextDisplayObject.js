@@ -37,14 +37,24 @@ class TextDisplayObject extends Layer {
     _graphicRender(g) {
         if (!this.text)
             return;
+        const ctxOrigin = g.ctx;
+        // 这里为了在cache的情况下把主canvas的context替换掉，使用新的canvas来计算bounding
+        if (!this.nocache && !this.$graphic.cached) {
+            const ctx = getNewCanvas().ctx;
+            g._ctx = ctx;
+        }
+
         const col = this.color || '#000';
 
         if (this.outline)
-            g.setStrokeStyl(col).setLineWidth(this.outline * 1);
+            g.setStrokeStyle(col).setLineWidth(this.outline * 1);
         else
             g.setFillStyle(col);
 
         this._drawText(this._prepareContext(g));
+        if (!this.nocache && !this.$geometry.cached) {
+            g._ctx = ctxOrigin;
+        }
     }
 
     _prepareContext(g) {
@@ -131,6 +141,7 @@ class TextDisplayObject extends Layer {
 
     _aftergraphicRender() {
         if (this.textVerticalAlign === 'middle'
+            && this.$parant.boundingBox
             && this.$parant.boundingBox.height
             && this.boundingBox.height) {
             this.$geometry.y = (this.$parant.boundingBox.height
@@ -143,6 +154,7 @@ class TextDisplayObject extends Layer {
         const {
             width, height,
         } = this.boundingBox;
+
         switch (this.textAlign) {
             case 'start':
             case 'left':

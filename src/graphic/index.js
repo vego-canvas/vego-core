@@ -22,7 +22,7 @@
  */
 
 // TODO: Graphic is a chainable API to construct instructions
-import { getNewCanvas } from '../canvas';
+import { getNewCanvas, getDevicePixelRatio, matchDevicePixelRatioWH } from '../canvas';
 const properties = [
     'canvas',
     'currentTransform',
@@ -120,13 +120,21 @@ function mkMethodFn(methods) {
     });
     return fn;
 }
-
+// 测试用
+// const div = document.createElement('div');
+// div.style.position = 'absolute';
+// div.style.zIndex = '9999';
+// div.style.background = '#fff';
+// div.style.left = '280px';
+// div.style.top = '770px';
+// document.body.appendChild(div);
 class Graphic {
     constructor(render, afterRender) {
         this.cached = null;
         this.noStyle = false;
         this.render = render;
         this.afterRender = afterRender;
+        this.ratio = getDevicePixelRatio();
         this.uncache();
     }
 
@@ -137,20 +145,32 @@ class Graphic {
     cache(x, y, width, height) {
         if (this.cached)
             return;
-        this.cacheCanvas.width = width;
-        this.cacheCanvas.height = height;
+        this.cached = true;
+
+        // 高分屏cache处理
+        const ratio = this.ratio;
+        if (ratio !== 1) {
+            this.cacheCanvas.width = width * ratio;
+            this.cacheCanvas.height = height * ratio;
+            this.cacheCanvas.style.width = `${width}px`;
+            this.cacheCanvas.style.height = `${height}px`;
+        }
         this.cacheMeta = {
             x, y, width, height,
         };
         const ctx = this._ctx;
         this._ctx = this.cacheCtx;
+
+        this._ctx.clearRect(0, 0, width * ratio + 1, height * ratio + 1);
         this._ctx.save();
+        this._ctx.scale(ratio, ratio);
         this._ctx.translate(-x, -y);
         this.render(this);
+
         this._ctx.restore();
         this._ctx = ctx;
 
-        this.cached = true;
+        // div.appendChild(this.cacheCanvas);
     }
 
     uncache() {
@@ -189,9 +209,12 @@ class Graphic {
         return this;
     }
 
+    // 针对cache做了一些处理，暂时先这么放着，主要是为了能够把cache好了的东西直接渲染上去，不渲染第一遍在图上的内容
     afterDraw() {
         if (!this.cached && this.afterRender) {
             this.afterRender(this);
+            if (this.cached)
+                this.draw();
         }
         return this;
     }

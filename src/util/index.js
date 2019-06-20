@@ -42,3 +42,22 @@ export function transformPoint(point, mtx) {
 
 let uid = 0;
 export function getUID() { return uid++; }
+
+export function getCTXStates(ctx) {
+    return ['fillStyle',
+        'font',
+        'globalAlpha',
+        'globalCompositionOperation',
+        'lineCap',
+        'lineJoin',
+        'lineWidth',
+        'miterLimit',
+        'shadowBlur',
+        'shadowColor',
+        'shadowOffsetX',
+        'shadowOffsetY',
+        'strokeStyle',
+        'strokeStyle',
+        'textAlign',
+        'textBaseline'].map((k) => `${k}:${ctx[k]}`);
+}
