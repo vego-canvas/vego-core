@@ -146,24 +146,25 @@ class Graphic {
         if (this.cached)
             return;
         this.cached = true;
-
+        this.cacheCanvas.width = width;
+        this.cacheCanvas.height = height;
         // 高分屏cache处理
-        const ratio = this.ratio;
-        if (ratio !== 1) {
-            this.cacheCanvas.width = width * ratio;
-            this.cacheCanvas.height = height * ratio;
-            this.cacheCanvas.style.width = `${width}px`;
-            this.cacheCanvas.style.height = `${height}px`;
-        }
+        // const ratio = this.ratio;
+        // if (ratio !== 1) {
+        //     this.cacheCanvas.width = width * ratio;
+        //     this.cacheCanvas.height = height * ratio;
+        //     this.cacheCanvas.style.width = `${width}px`;
+        //     this.cacheCanvas.style.height = `${height}px`;
+        // }
         this.cacheMeta = {
             x, y, width, height,
         };
         const ctx = this._ctx;
         this._ctx = this.cacheCtx;
 
-        this._ctx.clearRect(0, 0, width * ratio + 1, height * ratio + 1);
+        // this._ctx.clearRect(0, 0, width * ratio + 1, height * ratio + 1);
         this._ctx.save();
-        this._ctx.scale(ratio, ratio);
+        // this._ctx.scale(ratio, ratio);
         this._ctx.translate(-x, -y);
         this.render(this);
 
