@@ -36,9 +36,14 @@ class EventResolver {
             let listener = (event) => {
                 this.hooks[eventType].call(event);
             };
-            if (eventType === 'mousemove' && this.enableMouseOver > 0)
-                listener = throttle(this, listener, this.enableMouseOver);
-            canvas.addEventListener(eventType, listener);
+            if (eventType === 'mousemove') {
+                if (this.enableMouseOver > 0) {
+                    listener = throttle(this, listener, this.enableMouseOver);
+                    canvas.addEventListener(eventType, listener);
+                }
+            } else {
+                canvas.addEventListener(eventType, listener);
+            }
         });
 
         /*

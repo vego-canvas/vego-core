@@ -59,7 +59,9 @@ class BlockDashboard {
         const canvas = this.canvas = new VegoCanvas(canvasEle, {
             enableMouseOver: 16,
         });
+        canvas.NAME = 'board';
         const r = () => {
+            console.log('canvasmove');
             this.renderIndicator(pointviewCallback);
         };
         this.canvas.$regist('wheel', r);
@@ -251,12 +253,88 @@ canvasContainer.style.border = '1px solid #000';
 canvasContainer.appendChild(canvasEle);
 document.body.appendChild(canvasContainer);
 
+class Minimap {
+    constructor({
+        canvasEle,
+    }) {
+        const bounding = canvasEle.getBoundingClientRect();
+        this.width = bounding.width;
+        this.height = bounding.height;
+
+        this.canvas = new VegoCanvas(canvasEle, {
+            enableMouseOver: 0,
+            disableCanvasmove: true,
+        });
+        this.canvas.NAME = 'Minimap';
+        this.mask = {
+            x: 0, y: 0, width: this.width, height: this.height,
+        };
+        const maskDisp = new DisplayObject({
+            render: (g) => {
+                const {
+                    x, y, width, height,
+                } = this.mask;
+                g.beginPath()
+                    .rect(x, y, width, height)
+                    .clip()
+                    .setFillStyle('#fff')
+                    .fillRect(0, 0, this.width, this.height);
+                if (this.bgImg)
+                    g.drawImage(this.bgImg, 0, 0, this.width, this.height);
+            },
+        });
+        const bg = new DisplayObject({
+            render: (g) => {
+                if (this.bgImg)
+                    g.drawImage(this.bgImg, 0, 0, this.width, this.height);
+                g.setFillStyle('rgba(0,0,0,0.2)');
+                g.fillRect(0, 0, this.width, this.height);
+            },
+        });
+        this.canvas.addChild(bg);
+        this.canvas.addChild(maskDisp);
+    }
+
+    draw(bgImg) {
+        this.bgImg = new Image();
+        this.bgImg.src = bgImg;
+    }
+
+    update(x, y, width, height) {
+        this.mask = {
+            x, y, width, height,
+        };
+        this.canvas.render();
+    }
+}
+const canvasContainer2 = document.createElement('div');
+canvasContainer2.style.position = 'relative';
+const canvasEle2 = document.createElement('canvas');
+canvasEle2.width = 200;
+canvasEle2.height = 150;
+canvasContainer2.appendChild(canvasEle2);
+document.body.appendChild(canvasContainer2);
+const miniMap = new Minimap({
+    canvasEle: canvasEle2,
+});
+miniMap.NAME = 'miniMap';
+
+const stringifyStyle = ({
+    left, top, width, height,
+}) => {
+    // this.thumbnailStyle = `width: ${width}px; height: ${height}px; left: ${left}px; top: ${top}px; background-position: ${-left}px ${-top}px;`;
+    miniMap.update(left, top, width, height);
+};
+
 const board = new BlockDashboard({
     canvasEle,
-    pointviewCallback: () => {},
-    stateChangeCallback: () => {},
+    pointviewCallback: stringifyStyle,
+    stateChangeCallback: (args) => { console.log(args); },
 });
 
 const json = require('./block.json');
 console.log(json);
-board.draw(json.result.result, 'averageResponseTime');
+
+const breifimage = board.draw(json.result.result, 'averageResponseTime');
+miniMap.draw(breifimage);
+board.renderIndicator(stringifyStyle);
